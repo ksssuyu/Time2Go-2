@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "487293616763",
+    "project_id": "time2go-ef3ea",
+    "storage_bucket": "time2go-ef3ea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487293616763:android:01c8c92566bd40457558de",
+        "android_client_info": {
+          "package_name": "com.example.timego"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "487293616763-p0jbnlgsu5jds2q8446jfimm3e8gsb2q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnyFgc277lXOigb1wZx4_87fHANS5JScg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "487293616763-p0jbnlgsu5jds2q8446jfimm3e8gsb2q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

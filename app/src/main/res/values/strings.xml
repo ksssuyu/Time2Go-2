@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">My Application T2G</string>
+    <string name="skip">Пропустить</string>
+    <string name="main_text1">Лучшие маршруты рядом - под любой бюджет и настроение</string>
+    <string name="main_text2">Используй готовые маршруты или планируй их самостоятельно</string>
+    <string name="main_text3">Расскажи о своих пожеланиях, и ассистент подберет для тебя идею</string>
+    <string name="main_text4">Создайте аккаунт, чтобы получать персональные рекомендации и сохранять любимые маршруты</string>
+    <string name="hint_email"> </string>
+    <string name="password_hint"> </string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="login_button">Войти</string>
+    <string name="registration_button">Зарегистрироваться</string>
+    <string name="greeting_text">Привет, Ксюша!</string>
+    <string name="subtitle_text">Куда пойдем?</string>
+
+    <string name="popular_routes">Популярные маршруты</string>
+
+    <string name="route_name1">Абрамцево и Ясная Поляна</string>
+    <string name="more_details1">Поездка в усадьбу Абрамцево и музей Льва Толстого</string>
+
+    <string name="route_name2">Коломна - гастрономический уикенд</string>
+    <string name="more_details2">Экскурсия по Коломне: музей пастилы, кремль, дегустация медовухи</string>
+
+    <string name="route_name3">Зарайск - древний город</string>
+    <string name="more_details3">Экскурсия по кремлю, музей и прогулка по окрестностям</string>
+
+    <!-- Пользовательские маршруты -->
+    <string name="user_routes">Пользовательские маршруты</string>
+
+    <string name="route_name4">Выходные в Звенигороде</string>
+    <string name="more_details4">Небольшая поездка: прогулки по монастырю, река Москва, пикник.</string>
+
+    <string name="route_name5">Пикник у Истринского водохранилища</string>
+    <string name="more_details5">Маршрут для большой компании с играми и купанием</string>
+
+    <string name="route_name6">Серебряный бор</string>
+    <string name="more_details6">Прогулка по лесопарку с пляжами и зонами отдыха</string>
+
+    <string name="categories">Категории</string>
+    <string name="category_nature">Отдых на природе</string>
+    <string name="category_history">История и наследие</string>
+    <string name="category_active">Активный отдых</string>
+    <string name="category_gastronomy">Развлечения и гастрономия</string>
+    <string name="category_family">Семейный отдых</string>
+    <string name="category_ethnic">Этно и традиции</string>
+
+</resources>
