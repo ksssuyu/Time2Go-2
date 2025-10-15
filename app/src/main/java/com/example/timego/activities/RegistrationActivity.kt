@@ -4,10 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.timego.R
+import com.example.timego.repository.FirebaseRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.launch
 
 class RegistrationActivity : AppCompatActivity() {
 
@@ -18,6 +21,8 @@ class RegistrationActivity : AppCompatActivity() {
     private lateinit var btnLogin: MaterialButton
     private lateinit var btnRegistration: MaterialButton
     private lateinit var btnForgotPassword: MaterialButton
+
+    private val repository = FirebaseRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +40,10 @@ class RegistrationActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.btn_login)
         btnRegistration = findViewById(R.id.btn_registration)
         btnForgotPassword = findViewById(R.id.btn_forgot_password)
+
+        // Очищаем предзаполненный текст
+        emailInput.setText("")
+        passwordInput.setText("")
     }
 
     private fun setupListeners() {
@@ -55,80 +64,83 @@ class RegistrationActivity : AppCompatActivity() {
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        emailInputLayout.error = null
-        passwordInputLayout.error = null
+        if (!validateInput(email, password)) return
 
-        var isValid = true
+        setLoadingState(true)
 
-        if (email.isEmpty()) {
-            emailInputLayout.error = "Введите email"
-            isValid = false
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailInputLayout.error = "Некорректный email"
-            isValid = false
+        lifecycleScope.launch {
+            val result = repository.signIn(email, password)
+
+            setLoadingState(false)
+
+            result.onSuccess { user ->
+                Toast.makeText(
+                    this@RegistrationActivity,
+                    "Добро пожаловать!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // Переходим на главный экран
+                val intent = Intent(this@RegistrationActivity, MainScreenActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }.onFailure { exception ->
+                val errorMessage = when {
+                    exception.message?.contains("password") == true ->
+                        "Неверный пароль"
+                    exception.message?.contains("user") == true ->
+                        "Пользователь не найден"
+                    exception.message?.contains("network") == true ->
+                        "Проверьте подключение к интернету"
+                    else -> "Ошибка входа: ${exception.message}"
+                }
+                Toast.makeText(this@RegistrationActivity, errorMessage, Toast.LENGTH_LONG).show()
+            }
         }
-
-        if (password.isEmpty()) {
-            passwordInputLayout.error = "Введите пароль"
-            isValid = false
-        } else if (password.length < 6) {
-            passwordInputLayout.error = "Пароль должен содержать минимум 6 символов"
-            isValid = false
-        }
-
-        if (!isValid) return
-
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        prefs.edit().apply {
-            putBoolean("is_logged_in", true)
-            putString("user_email", email)
-            apply()
-        }
-
-        Toast.makeText(this, "Вход выполнен успешно", Toast.LENGTH_SHORT).show()
-
-        startActivity(Intent(this, MainScreenActivity::class.java))
-        finish()
     }
 
     private fun handleRegistration() {
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        emailInputLayout.error = null
-        passwordInputLayout.error = null
+        if (!validateInput(email, password)) return
 
-        var isValid = true
+        setLoadingState(true)
 
-        if (email.isEmpty()) {
-            emailInputLayout.error = "Введите email"
-            isValid = false
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailInputLayout.error = "Некорректный email"
-            isValid = false
+        // Простое имя из email (до @)
+        val name = email.substringBefore("@")
+
+        lifecycleScope.launch {
+            val result = repository.signUp(email, password, name)
+
+            setLoadingState(false)
+
+            result.onSuccess { user ->
+                Toast.makeText(
+                    this@RegistrationActivity,
+                    "Регистрация успешна!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // Переходим на главный экран
+                val intent = Intent(this@RegistrationActivity, MainScreenActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }.onFailure { exception ->
+                val errorMessage = when {
+                    exception.message?.contains("already") == true ->
+                        "Этот email уже зарегистрирован"
+                    exception.message?.contains("weak") == true ->
+                        "Слишком слабый пароль"
+                    exception.message?.contains("network") == true ->
+                        "Проверьте подключение к интернету"
+                    else -> "Ошибка регистрации: ${exception.message}"
+                }
+                Toast.makeText(this@RegistrationActivity, errorMessage, Toast.LENGTH_LONG).show()
+            }
         }
-
-        if (password.isEmpty()) {
-            passwordInputLayout.error = "Введите пароль"
-            isValid = false
-        } else if (password.length < 6) {
-            passwordInputLayout.error = "Пароль должен содержать минимум 6 символов"
-            isValid = false
-        }
-
-        if (!isValid) return
-
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        prefs.edit().apply {
-            putBoolean("is_logged_in", true)
-            putString("user_email", email)
-            apply()
-        }
-
-        Toast.makeText(this, "Регистрация выполнена успешно", Toast.LENGTH_SHORT).show()
-
-        startActivity(Intent(this, MainScreenActivity::class.java))
-        finish()
     }
 
     private fun handleForgotPassword() {
@@ -144,10 +156,67 @@ class RegistrationActivity : AppCompatActivity() {
             return
         }
 
-        Toast.makeText(
-            this,
-            "Инструкции по восстановлению пароля отправлены на $email",
-            Toast.LENGTH_LONG
-        ).show()
+        setLoadingState(true)
+
+        lifecycleScope.launch {
+            val result = repository.resetPassword(email)
+
+            setLoadingState(false)
+
+            result.onSuccess {
+                Toast.makeText(
+                    this@RegistrationActivity,
+                    "Инструкции по восстановлению отправлены на $email",
+                    Toast.LENGTH_LONG
+                ).show()
+            }.onFailure { exception ->
+                Toast.makeText(
+                    this@RegistrationActivity,
+                    "Ошибка: ${exception.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun validateInput(email: String, password: String): Boolean {
+        emailInputLayout.error = null
+        passwordInputLayout.error = null
+
+        var isValid = true
+
+        if (email.isEmpty()) {
+            emailInputLayout.error = "Введите email"
+            isValid = false
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailInputLayout.error = "Некорректный email"
+            isValid = false
+        }
+
+        if (password.isEmpty()) {
+            passwordInputLayout.error = "Введите пароль"
+            isValid = false
+        } else if (password.length < 6) {
+            passwordInputLayout.error = "Пароль должен содержать минимум 6 символов"
+            isValid = false
+        }
+
+        return isValid
+    }
+
+    private fun setLoadingState(isLoading: Boolean) {
+        btnLogin.isEnabled = !isLoading
+        btnRegistration.isEnabled = !isLoading
+        btnForgotPassword.isEnabled = !isLoading
+        emailInput.isEnabled = !isLoading
+        passwordInput.isEnabled = !isLoading
+
+        if (isLoading) {
+            btnLogin.text = "Загрузка..."
+            btnRegistration.text = "Загрузка..."
+        } else {
+            btnLogin.text = getString(R.string.login_button)
+            btnRegistration.text = getString(R.string.registration_button)
+        }
     }
 }

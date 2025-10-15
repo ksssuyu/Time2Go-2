@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Разрешения -->
+    <!-- Разрешения для работы с интернетом -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -15,49 +15,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/theme.Time2Go"
-        android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!-- MainActivity - точка входа -->
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Main Screen Activity -->
-        <activity
-            android:name=".activities.MainScreenActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- Registration Activity -->
-        <activity
-            android:name=".activities.RegistrationActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Onboarding Activities -->
         <activity
             android:name=".activities.Onboarding1Activity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:exported="false" />
 
         <activity
             android:name=".activities.Onboarding2Activity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:exported="false" />
 
         <activity
             android:name=".activities.Onboarding3Activity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:exported="false" />
 
+        <activity
+            android:name=".activities.RegistrationActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.MainScreenActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -40,14 +40,7 @@ android {
 
     buildFeatures {
         viewBinding = true
-        // Compose отключен - если нужен, раскомментируйте и добавьте правильные зависимости
-        // compose = true
     }
-
-    // Закомментировано, т.к. Compose отключен
-    // composeOptions {
-    //     kotlinCompilerExtensionVersion = "1.5.10"
-    // }
 
     // Добавляем packaging options
     packaging {
