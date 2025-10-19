@@ -43,6 +43,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".activities.ForgotPasswordActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".activities.MainScreenActivity"
             android:exported="false" />
     </application>

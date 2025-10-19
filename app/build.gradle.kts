@@ -66,6 +66,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
+    // Play Services для Phone Auth
+    implementation("com.google.android.gms:play-services-auth-api-phone:18.0.1")
+
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
@@ -87,13 +90,6 @@ dependencies {
 
     // Shimmer
     implementation("com.facebook.shimmer:shimmer:0.5.0")
-
-    // Jetpack Compose - УДАЛЕНО (несуществующие версии)
-    // Если нужен Compose, используйте актуальные версии:
-    // implementation("androidx.compose.ui:ui:1.6.0")
-    // implementation("androidx.compose.material3:material3:1.2.0")
-    // implementation("androidx.compose.ui:ui-tooling-preview:1.6.0")
-    // debugImplementation("androidx.compose.ui:ui-tooling:1.6.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

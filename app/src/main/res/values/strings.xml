@@ -5,11 +5,13 @@
     <string name="main_text2">Используй готовые маршруты или планируй их самостоятельно</string>
     <string name="main_text3">Расскажи о своих пожеланиях, и ассистент подберет для тебя идею</string>
     <string name="main_text4">Создайте аккаунт, чтобы получать персональные рекомендации и сохранять любимые маршруты</string>
-    <string name="hint_email"> </string>
-    <string name="password_hint"> </string>
+    <string name="hint_email">Email или телефон</string>
+    <string name="password_hint">Пароль</string>
     <string name="forgot_password">Забыли пароль?</string>
     <string name="login_button">Войти</string>
     <string name="registration_button">Зарегистрироваться</string>
+    <string name="forgot_password_help">Если письмо не пришло, проверьте папку \"Спам\" или попробуйте еще раз через несколько минут.</string>
+    <string name="phone_verification">Не получили код? Проверьте правильность номера телефона или попробуйте отправить повторно.</string>
     <string name="greeting_text">Привет, Ксюша!</string>
     <string name="subtitle_text">Куда пойдем?</string>
 

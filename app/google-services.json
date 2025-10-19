@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:487293616763:android:01c8c92566bd40457558de",
+        "mobilesdk_app_id": "1:487293616763:android:94de28ca992cf3697558de",
         "android_client_info": {
           "package_name": "com.example.timego"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "487293616763-s4ue8cduclato4btpnivs29v2f841tf2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.timego",
+            "certificate_hash": "8e3b5ae0b4978234cd449577bea036610fc54ed8"
+          }
+        },
         {
           "client_id": "487293616763-p0jbnlgsu5jds2q8446jfimm3e8gsb2q.apps.googleusercontent.com",
           "client_type": 3

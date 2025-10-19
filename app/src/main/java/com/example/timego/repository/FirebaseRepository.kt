@@ -49,6 +49,71 @@ class FirebaseRepository {
         }
     }
 
+    // Вход по телефону (используем телефон как email)
+    suspend fun signInWithPhone(phone: String, password: String): Result<FirebaseUser> {
+        return try {
+            // Используем телефон в формате email: +79123456789@phone.user
+            val phoneEmail = "${phone.replace("+", "")}@phone.user"
+            val result = auth.signInWithEmailAndPassword(phoneEmail, password).await()
+            val user = result.user ?: throw Exception("Phone sign in failed")
+            Result.success(user)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Регистрация по телефону (используем телефон как email)
+    suspend fun signUpWithPhone(phone: String, password: String): Result<FirebaseUser> {
+        return try {
+            // Используем телефон в формате email: +79123456789@phone.user
+            val phoneEmail = "${phone.replace("+", "")}@phone.user"
+            val result = auth.createUserWithEmailAndPassword(phoneEmail, password).await()
+            val user = result.user ?: throw Exception("Phone registration failed")
+
+            // Создаем документ пользователя в Firestore
+            val userData = User(
+                userId = user.uid,
+                name = phone,
+                email = phoneEmail
+            )
+            firestore.collection("users")
+                .document(user.uid)
+                .set(userData)
+                .await()
+
+            Result.success(user)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun signInWithPhoneCredential(credential: com.google.firebase.auth.PhoneAuthCredential): Result<FirebaseUser> {
+        return try {
+            val result = auth.signInWithCredential(credential).await()
+            val user = result.user ?: throw Exception("Phone sign in failed")
+
+            // Проверяем, существует ли пользователь в Firestore
+            val userDoc = firestore.collection("users").document(user.uid).get().await()
+
+            if (!userDoc.exists()) {
+                // Создаем нового пользователя
+                val userData = User(
+                    userId = user.uid,
+                    name = user.phoneNumber ?: "Пользователь",
+                    email = ""
+                )
+                firestore.collection("users")
+                    .document(user.uid)
+                    .set(userData)
+                    .await()
+            }
+
+            Result.success(user)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun resetPassword(email: String): Result<Unit> {
         return try {
             auth.sendPasswordResetEmail(email).await()
