@@ -40,9 +40,9 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
-    // Добавляем packaging options
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -58,6 +58,9 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // ViewPager2 для галереи
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
 
     // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))

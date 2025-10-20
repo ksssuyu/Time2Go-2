@@ -1,5 +1,6 @@
 package com.example.timego.repository
 
+import android.util.Log
 import com.example.timego.models.Route
 import com.example.timego.models.User
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +13,10 @@ class FirebaseRepository {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    companion object {
+        private const val TAG = "FirebaseRepository"
+    }
 
     // ===== AUTHENTICATION =====
 
@@ -33,8 +38,10 @@ class FirebaseRepository {
                 .set(userData)
                 .await()
 
+            Log.d(TAG, "Пользователь успешно зарегистрирован: $email")
             Result.success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка регистрации", e)
             Result.failure(e)
         }
     }
@@ -43,8 +50,10 @@ class FirebaseRepository {
         return try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception("Sign in failed")
+            Log.d(TAG, "Пользователь успешно вошел: $email")
             Result.success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка входа", e)
             Result.failure(e)
         }
     }
@@ -56,8 +65,10 @@ class FirebaseRepository {
             val phoneEmail = "${phone.replace("+", "")}@phone.user"
             val result = auth.signInWithEmailAndPassword(phoneEmail, password).await()
             val user = result.user ?: throw Exception("Phone sign in failed")
+            Log.d(TAG, "Пользователь вошел по телефону: $phone")
             Result.success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка входа по телефону", e)
             Result.failure(e)
         }
     }
@@ -81,8 +92,10 @@ class FirebaseRepository {
                 .set(userData)
                 .await()
 
+            Log.d(TAG, "Пользователь зарегистрирован по телефону: $phone")
             Result.success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка регистрации по телефону", e)
             Result.failure(e)
         }
     }
@@ -110,6 +123,7 @@ class FirebaseRepository {
 
             Result.success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка входа через PhoneAuthCredential", e)
             Result.failure(e)
         }
     }
@@ -117,14 +131,17 @@ class FirebaseRepository {
     suspend fun resetPassword(email: String): Result<Unit> {
         return try {
             auth.sendPasswordResetEmail(email).await()
+            Log.d(TAG, "Письмо для сброса пароля отправлено: $email")
             Result.success(Unit)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка отправки письма для сброса пароля", e)
             Result.failure(e)
         }
     }
 
     fun signOut() {
         auth.signOut()
+        Log.d(TAG, "Пользователь вышел из системы")
     }
 
     // ===== USER DATA =====
@@ -140,6 +157,7 @@ class FirebaseRepository {
                 ?: throw Exception("User not found")
             Result.success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка получения данных пользователя", e)
             Result.failure(e)
         }
     }
@@ -148,6 +166,9 @@ class FirebaseRepository {
 
     suspend fun getPopularRoutes(limit: Int = 10): Result<List<Route>> {
         return try {
+            Log.d(TAG, "Запрос популярных маршрутов, лимит: $limit")
+
+            // ИСПОЛЬЗУЙТЕ ЭТОТ КОД ПОСЛЕ СОЗДАНИЯ ИНДЕКСОВ В FIREBASE
             val snapshot = firestore.collection("routes")
                 .whereEqualTo("type", "popular")
                 .whereEqualTo("isPublished", true)
@@ -156,17 +177,34 @@ class FirebaseRepository {
                 .get()
                 .await()
 
-            val routes = snapshot.documents.mapNotNull {
-                it.toObject(Route::class.java)?.copy(routeId = it.id)
+            Log.d(TAG, "Получено документов: ${snapshot.documents.size}")
+
+            val routes = snapshot.documents.mapNotNull { doc ->
+                try {
+                    val route = doc.toObject(Route::class.java)?.copy(routeId = doc.id)
+                    if (route != null) {
+                        Log.d(TAG, "Маршрут загружен: ${route.title}, rating: ${route.rating}")
+                    }
+                    route
+                } catch (e: Exception) {
+                    Log.e(TAG, "Ошибка парсинга маршрута ${doc.id}", e)
+                    null
+                }
             }
+
+            Log.d(TAG, "Успешно загружено популярных маршрутов: ${routes.size}")
             Result.success(routes)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки популярных маршрутов", e)
             Result.failure(e)
         }
     }
 
     suspend fun getUserRoutes(limit: Int = 10): Result<List<Route>> {
         return try {
+            Log.d(TAG, "Запрос пользовательских маршрутов, лимит: $limit")
+
+            // ИСПОЛЬЗУЙТЕ ЭТОТ КОД ПОСЛЕ СОЗДАНИЯ ИНДЕКСОВ В FIREBASE
             val snapshot = firestore.collection("routes")
                 .whereEqualTo("type", "user")
                 .whereEqualTo("isPublished", true)
@@ -175,17 +213,34 @@ class FirebaseRepository {
                 .get()
                 .await()
 
-            val routes = snapshot.documents.mapNotNull {
-                it.toObject(Route::class.java)?.copy(routeId = it.id)
+            Log.d(TAG, "Получено документов: ${snapshot.documents.size}")
+
+            val routes = snapshot.documents.mapNotNull { doc ->
+                try {
+                    val route = doc.toObject(Route::class.java)?.copy(routeId = doc.id)
+                    if (route != null) {
+                        Log.d(TAG, "Маршрут загружен: ${route.title}, rating: ${route.rating}")
+                    }
+                    route
+                } catch (e: Exception) {
+                    Log.e(TAG, "Ошибка парсинга маршрута ${doc.id}", e)
+                    null
+                }
             }
+
+            Log.d(TAG, "Успешно загружено пользовательских маршрутов: ${routes.size}")
             Result.success(routes)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки пользовательских маршрутов", e)
             Result.failure(e)
         }
     }
 
     suspend fun getRoutesByCategory(category: String, limit: Int = 20): Result<List<Route>> {
         return try {
+            Log.d(TAG, "Запрос маршрутов по категории: $category")
+
+            // ИСПОЛЬЗУЙТЕ ЭТОТ КОД ПОСЛЕ СОЗДАНИЯ ИНДЕКСОВ В FIREBASE
             val snapshot = firestore.collection("routes")
                 .whereEqualTo("category", category)
                 .whereEqualTo("isPublished", true)
@@ -194,11 +249,19 @@ class FirebaseRepository {
                 .get()
                 .await()
 
-            val routes = snapshot.documents.mapNotNull {
-                it.toObject(Route::class.java)?.copy(routeId = it.id)
+            val routes = snapshot.documents.mapNotNull { doc ->
+                try {
+                    doc.toObject(Route::class.java)?.copy(routeId = doc.id)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Ошибка парсинга маршрута ${doc.id}", e)
+                    null
+                }
             }
+
+            Log.d(TAG, "Загружено маршрутов категории $category: ${routes.size}")
             Result.success(routes)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки маршрутов по категории", e)
             Result.failure(e)
         }
     }
@@ -214,6 +277,7 @@ class FirebaseRepository {
                 ?: throw Exception("Route not found")
             Result.success(route)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка получения маршрута по ID", e)
             Result.failure(e)
         }
     }
@@ -232,8 +296,10 @@ class FirebaseRepository {
                 .add(favoriteData)
                 .await()
 
+            Log.d(TAG, "Маршрут добавлен в избранное: $routeId")
             Result.success(Unit)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка добавления в избранное", e)
             Result.failure(e)
         }
     }
@@ -248,8 +314,10 @@ class FirebaseRepository {
 
             snapshot.documents.forEach { it.reference.delete().await() }
 
+            Log.d(TAG, "Маршрут удален из избранного: $routeId")
             Result.success(Unit)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка удаления из избранного", e)
             Result.failure(e)
         }
     }
@@ -278,8 +346,56 @@ class FirebaseRepository {
                 routeResult.getOrNull()?.let { routes.add(it) }
             }
 
+            Log.d(TAG, "Загружено избранных маршрутов: ${routes.size}")
             Result.success(routes)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки избранных маршрутов", e)
+            Result.failure(e)
+        }
+    }
+
+    // ===== REVIEWS =====
+
+    suspend fun getRouteReviews(routeId: String, limit: Int = 20): Result<List<com.example.timego.models.Review>> {
+        return try {
+            Log.d(TAG, "Запрос отзывов для маршрута: $routeId")
+
+            val snapshot = firestore.collection("reviews")
+                .whereEqualTo("routeId", routeId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(limit.toLong())
+                .get()
+                .await()
+
+            val reviews = snapshot.documents.mapNotNull { doc ->
+                try {
+                    doc.toObject(com.example.timego.models.Review::class.java)?.copy(reviewId = doc.id)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Ошибка парсинга отзыва ${doc.id}", e)
+                    null
+                }
+            }
+
+            Log.d(TAG, "Загружено отзывов: ${reviews.size}")
+            Result.success(reviews)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки отзывов", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun isFavorite(userId: String, routeId: String): Result<Boolean> {
+        return try {
+            val snapshot = firestore.collection("favorites")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("routeId", routeId)
+                .limit(1)
+                .get()
+                .await()
+
+            Result.success(!snapshot.isEmpty)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка проверки избранного", e)
             Result.failure(e)
         }
     }

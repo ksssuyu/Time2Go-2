@@ -49,6 +49,11 @@
         <activity
             android:name=".activities.MainScreenActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activities.RouteDetailActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
     </application>
 
 </manifest>
