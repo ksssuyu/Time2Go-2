@@ -85,6 +85,9 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
+    // OkHttp для загрузки на Imgbb
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 

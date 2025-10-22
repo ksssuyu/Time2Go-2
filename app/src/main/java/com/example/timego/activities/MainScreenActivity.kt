@@ -271,4 +271,10 @@ class MainScreenActivity : AppCompatActivity() {
             Toast.makeText(this, "Ошибка обновления карточки: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+    // ✅ НОВОЕ: Перезагружаем данные при возврате на главный экран
+    override fun onResume() {
+        super.onResume()
+        // Перезагружаем маршруты, чтобы обновить счетчики
+        loadRoutes()
+    }
 }

@@ -5,6 +5,7 @@ import com.example.timego.models.Route
 import com.example.timego.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
@@ -27,7 +28,6 @@ class FirebaseRepository {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user ?: throw Exception("User creation failed")
 
-            // Создаем документ пользователя в Firestore
             val userData = User(
                 userId = user.uid,
                 name = name,
@@ -58,10 +58,8 @@ class FirebaseRepository {
         }
     }
 
-    // Вход по телефону (используем телефон как email)
     suspend fun signInWithPhone(phone: String, password: String): Result<FirebaseUser> {
         return try {
-            // Используем телефон в формате email: +79123456789@phone.user
             val phoneEmail = "${phone.replace("+", "")}@phone.user"
             val result = auth.signInWithEmailAndPassword(phoneEmail, password).await()
             val user = result.user ?: throw Exception("Phone sign in failed")
@@ -73,15 +71,12 @@ class FirebaseRepository {
         }
     }
 
-    // Регистрация по телефону (используем телефон как email)
     suspend fun signUpWithPhone(phone: String, password: String): Result<FirebaseUser> {
         return try {
-            // Используем телефон в формате email: +79123456789@phone.user
             val phoneEmail = "${phone.replace("+", "")}@phone.user"
             val result = auth.createUserWithEmailAndPassword(phoneEmail, password).await()
             val user = result.user ?: throw Exception("Phone registration failed")
 
-            // Создаем документ пользователя в Firestore
             val userData = User(
                 userId = user.uid,
                 name = phone,
@@ -105,11 +100,9 @@ class FirebaseRepository {
             val result = auth.signInWithCredential(credential).await()
             val user = result.user ?: throw Exception("Phone sign in failed")
 
-            // Проверяем, существует ли пользователь в Firestore
             val userDoc = firestore.collection("users").document(user.uid).get().await()
 
             if (!userDoc.exists()) {
-                // Создаем нового пользователя
                 val userData = User(
                     userId = user.uid,
                     name = user.phoneNumber ?: "Пользователь",
@@ -168,7 +161,6 @@ class FirebaseRepository {
         return try {
             Log.d(TAG, "Запрос популярных маршрутов, лимит: $limit")
 
-            // ИСПОЛЬЗУЙТЕ ЭТОТ КОД ПОСЛЕ СОЗДАНИЯ ИНДЕКСОВ В FIREBASE
             val snapshot = firestore.collection("routes")
                 .whereEqualTo("type", "popular")
                 .whereEqualTo("isPublished", true)
@@ -204,7 +196,6 @@ class FirebaseRepository {
         return try {
             Log.d(TAG, "Запрос пользовательских маршрутов, лимит: $limit")
 
-            // ИСПОЛЬЗУЙТЕ ЭТОТ КОД ПОСЛЕ СОЗДАНИЯ ИНДЕКСОВ В FIREBASE
             val snapshot = firestore.collection("routes")
                 .whereEqualTo("type", "user")
                 .whereEqualTo("isPublished", true)
@@ -240,7 +231,6 @@ class FirebaseRepository {
         return try {
             Log.d(TAG, "Запрос маршрутов по категории: $category")
 
-            // ИСПОЛЬЗУЙТЕ ЭТОТ КОД ПОСЛЕ СОЗДАНИЯ ИНДЕКСОВ В FIREBASE
             val snapshot = firestore.collection("routes")
                 .whereEqualTo("category", category)
                 .whereEqualTo("isPublished", true)
@@ -282,6 +272,78 @@ class FirebaseRepository {
         }
     }
 
+    // ===== ✅ НОВОЕ: ОБНОВЛЕНИЕ СЧЕТЧИКОВ =====
+
+    suspend fun incrementViews(routeId: String): Result<Unit> {
+        return try {
+            firestore.collection("routes")
+                .document(routeId)
+                .update("views", FieldValue.increment(1))
+                .await()
+            Log.d(TAG, "Просмотры увеличены для маршрута: $routeId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка увеличения просмотров", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun incrementLikes(routeId: String): Result<Unit> {
+        return try {
+            firestore.collection("routes")
+                .document(routeId)
+                .update("likes", FieldValue.increment(1))
+                .await()
+            Log.d(TAG, "Лайки увеличены для маршрута: $routeId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка увеличения лайков", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun decrementLikes(routeId: String): Result<Unit> {
+        return try {
+            firestore.collection("routes")
+                .document(routeId)
+                .update("likes", FieldValue.increment(-1))
+                .await()
+            Log.d(TAG, "Лайки уменьшены для маршрута: $routeId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка уменьшения лайков", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun incrementReviewsCount(routeId: String): Result<Unit> {
+        return try {
+            firestore.collection("routes")
+                .document(routeId)
+                .update("reviewsCount", FieldValue.increment(1))
+                .await()
+            Log.d(TAG, "Счетчик отзывов увеличен для маршрута: $routeId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка увеличения счетчика отзывов", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun decrementReviewsCount(routeId: String): Result<Unit> {
+        return try {
+            firestore.collection("routes")
+                .document(routeId)
+                .update("reviewsCount", FieldValue.increment(-1))
+                .await()
+            Log.d(TAG, "Счетчик отзывов уменьшен для маршрута: $routeId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка уменьшения счетчика отзывов", e)
+            Result.failure(e)
+        }
+    }
+
     // ===== FAVORITES =====
 
     suspend fun addToFavorites(userId: String, routeId: String): Result<Unit> {
@@ -295,6 +357,9 @@ class FirebaseRepository {
             firestore.collection("favorites")
                 .add(favoriteData)
                 .await()
+
+            // ✅ Увеличиваем счетчик лайков
+            incrementLikes(routeId)
 
             Log.d(TAG, "Маршрут добавлен в избранное: $routeId")
             Result.success(Unit)
@@ -314,6 +379,9 @@ class FirebaseRepository {
 
             snapshot.documents.forEach { it.reference.delete().await() }
 
+            // ✅ Уменьшаем счетчик лайков
+            decrementLikes(routeId)
+
             Log.d(TAG, "Маршрут удален из избранного: $routeId")
             Result.success(Unit)
         } catch (e: Exception) {
@@ -324,7 +392,6 @@ class FirebaseRepository {
 
     suspend fun getFavoriteRoutes(userId: String): Result<List<Route>> {
         return try {
-            // Получаем ID избранных маршрутов
             val favoritesSnapshot = firestore.collection("favorites")
                 .whereEqualTo("userId", userId)
                 .orderBy("addedAt", Query.Direction.DESCENDING)
@@ -339,7 +406,6 @@ class FirebaseRepository {
                 return Result.success(emptyList())
             }
 
-            // Получаем маршруты
             val routes = mutableListOf<Route>()
             for (routeId in routeIds) {
                 val routeResult = getRouteById(routeId)
@@ -396,6 +462,44 @@ class FirebaseRepository {
             Result.success(!snapshot.isEmpty)
         } catch (e: Exception) {
             Log.e(TAG, "Ошибка проверки избранного", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun addReview(reviewData: HashMap<String, Any>): Result<Unit> {
+        return try {
+            firestore.collection("reviews")
+                .add(reviewData)
+                .await()
+
+            // ✅ Увеличиваем счетчик отзывов
+            val routeId = reviewData["routeId"] as? String
+            if (routeId != null) {
+                incrementReviewsCount(routeId)
+            }
+
+            Log.d(TAG, "Отзыв успешно добавлен")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка добавления отзыва", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteReview(reviewId: String, routeId: String): Result<Unit> {
+        return try {
+            firestore.collection("reviews")
+                .document(reviewId)
+                .delete()
+                .await()
+
+            // ✅ Уменьшаем счетчик отзывов
+            decrementReviewsCount(routeId)
+
+            Log.d(TAG, "Отзыв успешно удален")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка удаления отзыва", e)
             Result.failure(e)
         }
     }
