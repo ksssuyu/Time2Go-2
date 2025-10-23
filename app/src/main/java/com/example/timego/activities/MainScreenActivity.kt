@@ -28,41 +28,6 @@ class MainScreenActivity : AppCompatActivity() {
         private const val TAG = "MainScreenActivity"
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_screen)
-
-        auth = FirebaseAuth.getInstance()
-
-        setupBottomNavigation()
-        loadRoutes()
-    }
-
-    private fun setupBottomNavigation() {
-        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigation.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    Toast.makeText(this, "Главная", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                R.id.nav_profile -> {
-                    showProfileDialog()
-                    true
-                }
-                R.id.nav_messages -> {
-                    Toast.makeText(this, "Чат с ассистентом", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                R.id.nav_favorites -> {
-                    Toast.makeText(this, "Избранное", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                else -> false
-            }
-        }
-    }
-
     private fun showProfileDialog() {
         val user = auth.currentUser
         val email = user?.email ?: "Не указан"
@@ -94,7 +59,6 @@ class MainScreenActivity : AppCompatActivity() {
     private fun loadRoutes() {
         lifecycleScope.launch {
             try {
-                // Загружаем популярные маршруты
                 Log.d(TAG, "Начинаем загрузку популярных маршрутов")
                 repository.getPopularRoutes(3).onSuccess { routes ->
                     Log.d(TAG, "Загружено популярных маршрутов: ${routes.size}")
@@ -112,7 +76,6 @@ class MainScreenActivity : AppCompatActivity() {
                     ).show()
                 }
 
-                // Загружаем пользовательские маршруты
                 Log.d(TAG, "Начинаем загрузку пользовательских маршрутов")
                 repository.getUserRoutes(3).onSuccess { routes ->
                     Log.d(TAG, "Загружено пользовательских маршрутов: ${routes.size}")
@@ -231,11 +194,9 @@ class MainScreenActivity : AppCompatActivity() {
             val rating = findViewById<TextView>(ratingId)
             val details = findViewById<TextView>(detailsId)
 
-            // Загружаем изображение
             Log.d(TAG, "Загружаем изображение для маршрута: ${route.title}, URL: ${route.imageUrl}")
             ImageLoader.loadImage(image, route.imageUrl, R.drawable.ic_home)
 
-            // Устанавливаем данные
             name.text = route.title
             rating.text = String.format("%.1f", route.rating)
             details.text = if (route.shortDescription.isNotEmpty()) {
@@ -244,7 +205,6 @@ class MainScreenActivity : AppCompatActivity() {
                 route.fullDescription.take(100)
             }
 
-            // ВАЖНО: Обработчик клика на карточку
             card.setOnClickListener {
                 Log.d(TAG, "Клик на маршрут: ${route.title}, ID: ${route.routeId}")
 
@@ -271,10 +231,63 @@ class MainScreenActivity : AppCompatActivity() {
             Toast.makeText(this, "Ошибка обновления карточки: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-    // ✅ НОВОЕ: Перезагружаем данные при возврате на главный экран
+
+    private fun setupBottomNavigation() {
+        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigation.setOnItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_home -> {
+                    Toast.makeText(this, "Главная", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.nav_profile -> {
+                    showProfileDialog()
+                    true
+                }
+                R.id.nav_messages -> {
+                    Toast.makeText(this, "Чат с ассистентом", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.nav_favorites -> {
+                    val intent = Intent(this, FavoritesActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun loadUserName() {
+        lifecycleScope.launch {
+            try {
+                val userId = auth.currentUser?.uid ?: return@launch
+                repository.getUserData(userId).onSuccess { user ->
+                    val greetingText = findViewById<TextView>(R.id.greeting_text)
+                    greetingText.text = "Привет, ${user.name}!"
+                }.onFailure {
+                    Log.e(TAG, "Ошибка загрузки имени пользователя", it)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Ошибка", e)
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.main_screen)
+
+        auth = FirebaseAuth.getInstance()
+
+        setupBottomNavigation()
+        loadRoutes()
+        loadUserName()
+    }
+
     override fun onResume() {
         super.onResume()
-        // Перезагружаем маршруты, чтобы обновить счетчики
         loadRoutes()
+        loadUserName()
     }
 }

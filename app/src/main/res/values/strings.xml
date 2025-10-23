@@ -5,7 +5,7 @@
     <string name="main_text2">Используй готовые маршруты или планируй их самостоятельно</string>
     <string name="main_text3">Расскажи о своих пожеланиях, и ассистент подберет для тебя идею</string>
     <string name="main_text4">Создайте аккаунт, чтобы получать персональные рекомендации и сохранять любимые маршруты</string>
-    <string name="hint_email">Email или телефон</string>
+    <string name="hint_email">Email</string>
     <string name="password_hint">Пароль</string>
     <string name="forgot_password">Забыли пароль?</string>
     <string name="login_button">Войти</string>
@@ -26,7 +26,6 @@
     <string name="route_name3">Зарайск - древний город</string>
     <string name="more_details3">Экскурсия по кремлю, музей и прогулка по окрестностям</string>
 
-    <!-- Пользовательские маршруты -->
     <string name="user_routes">Пользовательские маршруты</string>
 
     <string name="route_name4">Выходные в Звенигороде</string>

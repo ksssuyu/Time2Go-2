@@ -32,13 +32,13 @@
                 app:tint="#B8B5B2" />
 
             <TextView
-                android:id="@+id/tv_reviews_title"
+                android:id="@+id/tv_favorites_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:fontFamily="sans-serif-medium"
-                android:text="Все отзывы"
+                android:text="Избранное"
                 android:textColor="#B8B5B2"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="@id/btn_back"
@@ -49,29 +49,29 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/tv_all_reviews_count"
+        android:id="@+id/tv_favorites_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="20dp"
         android:fontFamily="sans-serif-medium"
-        android:text="Всего отзывов: 0"
+        android:text="Избранных маршрутов: 0"
         android:textColor="#909090"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/header_card" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_all_reviews"
+        android:id="@+id/rv_favorites"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:paddingBottom="20dp"
         android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_all_reviews_count" />
+        app:layout_constraintTop_toBottomOf="@id/tv_favorites_count" />
 
     <LinearLayout
         android:id="@+id/empty_state"
@@ -83,13 +83,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_all_reviews_count">
+        app:layout_constraintTop_toBottomOf="@id/tv_favorites_count">
 
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:alpha="0.5"
-            android:src="@drawable/ic_reviews_empty"
+            android:src="@drawable/ic_favorite"
             app:tint="#B8B5B2" />
 
         <TextView
@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="sans-serif-medium"
-            android:text="Отзывов пока нет"
+            android:text="Избранных маршрутов пока нет"
             android:textColor="#B8B5B2"
             android:textSize="18sp" />
 
@@ -106,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="sans-serif"
-            android:text="Будьте первым!"
+            android:text="Добавьте маршруты в избранное!"
             android:textColor="#909090"
             android:textSize="14sp" />
     </LinearLayout>

@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#FFFAF1">
 
-    <!-- Header -->
     <androidx.cardview.widget.CardView
         android:id="@+id/header_card"
         android:layout_width="match_parent"
@@ -61,7 +60,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Оценка -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,7 +79,6 @@
                 android:rating="0"
                 android:stepSize="0.5" />
 
-            <!-- Текст отзыва -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -117,7 +114,6 @@
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Добавление фото -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -146,7 +142,6 @@
                 app:strokeColor="#E0E0E0"
                 app:strokeWidth="1dp" />
 
-            <!-- Превью фотографий -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_review_images"
                 android:layout_width="match_parent"
@@ -154,7 +149,6 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal" />
 
-            <!-- Кнопка отправки -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_submit_review"
                 android:layout_width="match_parent"
@@ -167,7 +161,6 @@
                 android:textSize="18sp"
                 app:cornerRadius="12dp" />
 
-            <!-- Подсказка -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -177,7 +170,6 @@
                 android:text="Ваш отзыв поможет другим пользователям"
                 android:textColor="#909090"
                 android:textSize="12sp" />
-
         </LinearLayout>
     </ScrollView>
 

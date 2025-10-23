@@ -56,7 +56,6 @@ class AddReviewActivity : AppCompatActivity() {
         const val EXTRA_ROUTE_TITLE = "route_title"
         private const val TAG = "AddReviewActivity"
         private const val MAX_IMAGES = 5
-        // Получите ключ на https://api.imgbb.com/
         private const val IMGBB_API_KEY = "4438d69182b77b8bbd4ef9b33f56b92f"
     }
 
@@ -174,15 +173,17 @@ class AddReviewActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // Загружаем фото на Imgbb
                 val imageUrls = if (selectedImages.isNotEmpty()) {
                     uploadImagesToImgbb()
                 } else {
                     emptyList()
                 }
 
-                val userName = user.displayName ?: user.email?.substringBefore("@") ?: "Пользователь"
+                val userName = getUserNameFromFirestore(user.uid)
                 val userAvatarUrl = user.photoUrl?.toString() ?: ""
+
+                Log.d(TAG, "Имя пользователя: $userName, Аватар: $userAvatarUrl")
+                Log.d(TAG, "Загружено фотографий: ${imageUrls.size}")
 
                 val reviewData = hashMapOf(
                     "routeId" to routeId,
@@ -213,6 +214,28 @@ class AddReviewActivity : AppCompatActivity() {
                 btnSubmitReview.isEnabled = true
                 btnSubmitReview.text = "Опубликовать отзыв"
             }
+        }
+    }
+
+    private suspend fun getUserNameFromFirestore(userId: String): String = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val userDoc = repository.getUserData(userId)
+            val userName = userDoc.getOrNull()?.name
+
+            when {
+                !userName.isNullOrEmpty() -> userName
+                else -> {
+                    val email = auth.currentUser?.email
+                    if (!email.isNullOrEmpty()) {
+                        email.substringBefore("@")
+                    } else {
+                        "Пользователь"
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка получения имени пользователя", e)
+            auth.currentUser?.email?.substringBefore("@") ?: "Пользователь"
         }
     }
 

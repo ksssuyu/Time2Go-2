@@ -32,13 +32,11 @@ class ReviewImagesAdapter(
         private val btnDelete: ImageView = itemView.findViewById(R.id.btn_delete_image)
 
         fun bind(imageUri: Uri, position: Int) {
-            // Загружаем изображение
             Glide.with(itemView.context)
                 .load(imageUri)
                 .centerCrop()
                 .into(imageView)
 
-            // Обработка удаления
             btnDelete.setOnClickListener {
                 onDeleteClick(position)
             }

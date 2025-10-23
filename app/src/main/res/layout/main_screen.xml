@@ -27,7 +27,6 @@
             android:paddingEnd="20dp"
             android:paddingBottom="20dp">
 
-            <!-- Greeting Section -->
             <TextView
                 android:id="@+id/greeting_text"
                 android:layout_width="match_parent"
@@ -49,7 +48,6 @@
                 android:textSize="24sp"
                 android:lineSpacingExtra="4dp" />
 
-            <!-- Popular Routes Title -->
             <TextView
                 android:id="@+id/popular_routes_title"
                 android:layout_width="match_parent"
@@ -66,7 +64,6 @@
                 android:textColor="#B8B5B2"
                 android:textSize="20sp" />
 
-            <!-- Popular Routes Horizontal Scroll -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,7 +78,6 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp">
 
-                    <!-- Popular Route Card 1 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/popular_route_card_1"
                         android:layout_width="200dp"
@@ -152,7 +148,6 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- Popular Route Card 2 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/popular_route_card_2"
                         android:layout_width="200dp"
@@ -223,7 +218,6 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- Popular Route Card 3 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/popular_route_card_3"
                         android:layout_width="200dp"
@@ -297,7 +291,6 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <!-- User Routes Title -->
             <TextView
                 android:id="@+id/user_routes_title"
                 android:layout_width="match_parent"
@@ -314,7 +307,6 @@
                 android:textColor="#B8B5B2"
                 android:textSize="20sp" />
 
-            <!-- User Routes Horizontal Scroll -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -329,7 +321,6 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp">
 
-                    <!-- User Route Card 1 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/user_route_card_1"
                         android:layout_width="200dp"
@@ -400,7 +391,6 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- User Route Card 2 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/user_route_card_2"
                         android:layout_width="200dp"
@@ -471,7 +461,6 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- User Route Card 3 -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/user_route_card_3"
                         android:layout_width="200dp"
@@ -545,7 +534,6 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <!-- Categories Title -->
             <TextView
                 android:id="@+id/categories_title"
                 android:layout_width="match_parent"
@@ -562,7 +550,6 @@
                 android:textColor="#B8B5B2"
                 android:textSize="20sp" />
 
-            <!-- Categories Grid -->
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -570,7 +557,6 @@
                 android:columnCount="2"
                 android:rowCount="3">
 
-                <!-- Category Card 1 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/category_card_1"
                     android:layout_width="0dp"
@@ -594,7 +580,6 @@
                         android:textSize="19sp" />
                 </androidx.cardview.widget.CardView>
 
-                <!-- Category Card 2 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/category_card_2"
                     android:layout_width="0dp"
@@ -618,7 +603,6 @@
                         android:textSize="19sp" />
                 </androidx.cardview.widget.CardView>
 
-                <!-- Category Card 3 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/category_card_3"
                     android:layout_width="0dp"
@@ -642,7 +626,6 @@
                         android:textSize="19sp" />
                 </androidx.cardview.widget.CardView>
 
-                <!-- Category Card 4 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/category_card_4"
                     android:layout_width="0dp"
@@ -666,7 +649,6 @@
                         android:textSize="19sp" />
                 </androidx.cardview.widget.CardView>
 
-                <!-- Category Card 5 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/category_card_5"
                     android:layout_width="0dp"
@@ -690,7 +672,6 @@
                         android:textSize="19sp" />
                 </androidx.cardview.widget.CardView>
 
-                <!-- Category Card 6 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/category_card_6"
                     android:layout_width="0dp"
@@ -718,7 +699,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"

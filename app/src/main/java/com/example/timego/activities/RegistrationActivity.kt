@@ -20,9 +20,13 @@ class RegistrationActivity : AppCompatActivity() {
     private lateinit var emailInputLayout: TextInputLayout
     private lateinit var phoneInputLayout: TextInputLayout
     private lateinit var passwordInputLayout: TextInputLayout
+    private lateinit var usernameInputLayout: TextInputLayout
+
     private lateinit var emailInput: TextInputEditText
     private lateinit var phoneInput: TextInputEditText
     private lateinit var passwordInput: TextInputEditText
+    private lateinit var usernameInput: TextInputEditText
+
     private lateinit var btnLogin: MaterialButton
     private lateinit var btnRegistration: MaterialButton
     private lateinit var btnForgotPassword: MaterialButton
@@ -43,17 +47,21 @@ class RegistrationActivity : AppCompatActivity() {
         emailInputLayout = findViewById(R.id.email_input_layout)
         phoneInputLayout = findViewById(R.id.phone_input_layout)
         passwordInputLayout = findViewById(R.id.password_input_layout)
+        usernameInputLayout = findViewById(R.id.username_input_layout)
+
         emailInput = findViewById(R.id.email_input)
         phoneInput = findViewById(R.id.phone_input)
         passwordInput = findViewById(R.id.password_input)
+        usernameInput = findViewById(R.id.et_username)
+
         btnLogin = findViewById(R.id.btn_login)
         btnRegistration = findViewById(R.id.btn_registration)
         btnForgotPassword = findViewById(R.id.btn_forgot_password)
 
-        // Очистка текстов
         emailInput.setText("")
         phoneInput.setText("")
         passwordInput.setText("")
+        usernameInput.setText("")
     }
 
     private fun setupListeners() {
@@ -73,13 +81,10 @@ class RegistrationActivity : AppCompatActivity() {
 
     private fun switchToEmailMode() {
         isEmailMode = true
-
         emailInputLayout.visibility = View.VISIBLE
         phoneInputLayout.visibility = View.GONE
-        passwordInputLayout.visibility = View.VISIBLE
         btnForgotPassword.visibility = View.VISIBLE
 
-        // Очистка ошибок
         emailInputLayout.error = null
         phoneInputLayout.error = null
         passwordInputLayout.error = null
@@ -87,13 +92,10 @@ class RegistrationActivity : AppCompatActivity() {
 
     private fun switchToPhoneMode() {
         isEmailMode = false
-
         emailInputLayout.visibility = View.GONE
         phoneInputLayout.visibility = View.VISIBLE
-        passwordInputLayout.visibility = View.VISIBLE
         btnForgotPassword.visibility = View.GONE
 
-        // Очистка ошибок
         emailInputLayout.error = null
         phoneInputLayout.error = null
         passwordInputLayout.error = null
@@ -115,7 +117,6 @@ class RegistrationActivity : AppCompatActivity() {
         }
     }
 
-    // ===== EMAIL ВХОД =====
     private fun handleEmailLogin() {
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
@@ -130,43 +131,35 @@ class RegistrationActivity : AppCompatActivity() {
             btnLogin.isEnabled = true
 
             result.onSuccess {
-                val intent = Intent(this@RegistrationActivity, MainScreenActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
+                navigateToMain()
             }.onFailure { exception ->
                 showErrorDialog("Ошибка входа", getErrorMessage(exception))
             }
         }
     }
 
-    // ===== EMAIL РЕГИСТРАЦИЯ =====
     private fun handleEmailRegistration() {
+        val username = usernameInput.text.toString().trim()
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        if (!validateEmailInput(email, password)) return
+        if (!validateUsername(username) || !validateEmailInput(email, password)) return
 
         btnRegistration.isEnabled = false
-        val name = email.substringBefore("@")
 
         lifecycleScope.launch {
-            val result = repository.signUp(email, password, name)
+            val result = repository.signUp(email, password, username)
 
             btnRegistration.isEnabled = true
 
             result.onSuccess {
-                val intent = Intent(this@RegistrationActivity, MainScreenActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
+                navigateToMain()
             }.onFailure { exception ->
                 showErrorDialog("Ошибка регистрации", getErrorMessage(exception))
             }
         }
     }
 
-    // ===== ТЕЛЕФОН ВХОД =====
     private fun handlePhoneLogin() {
         val phone = phoneInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
@@ -182,22 +175,19 @@ class RegistrationActivity : AppCompatActivity() {
             btnLogin.isEnabled = true
 
             result.onSuccess {
-                val intent = Intent(this@RegistrationActivity, MainScreenActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
+                navigateToMain()
             }.onFailure { exception ->
                 showErrorDialog("Ошибка входа", getErrorMessage(exception))
             }
         }
     }
 
-    // ===== ТЕЛЕФОН РЕГИСТРАЦИЯ =====
     private fun handlePhoneRegistration() {
+        val username = usernameInput.text.toString().trim()
         val phone = phoneInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        if (!validatePhoneInput(phone, password)) return
+        if (!validateUsername(username) || !validatePhoneInput(phone, password)) return
 
         btnRegistration.isEnabled = false
         val formattedPhone = "+7$phone"
@@ -208,10 +198,7 @@ class RegistrationActivity : AppCompatActivity() {
             btnRegistration.isEnabled = true
 
             result.onSuccess {
-                val intent = Intent(this@RegistrationActivity, MainScreenActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
+                navigateToMain()
             }.onFailure { exception ->
                 showErrorDialog("Ошибка регистрации", getErrorMessage(exception))
             }
@@ -219,15 +206,20 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     private fun handleForgotPassword() {
-        val intent = Intent(this, ForgotPasswordActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, ForgotPasswordActivity::class.java))
     }
 
-    // ===== ВАЛИДАЦИЯ =====
+    private fun validateUsername(username: String): Boolean {
+        usernameInputLayout.error = null
+        return if (username.isEmpty()) {
+            usernameInputLayout.error = "Введите имя пользователя"
+            false
+        } else true
+    }
+
     private fun validateEmailInput(email: String, password: String): Boolean {
         emailInputLayout.error = null
         passwordInputLayout.error = null
-
         var valid = true
 
         if (email.isEmpty()) {
@@ -242,7 +234,7 @@ class RegistrationActivity : AppCompatActivity() {
             passwordInputLayout.error = "Введите пароль"
             valid = false
         } else if (password.length < 6) {
-            passwordInputLayout.error = "Пароль должен содержать минимум 6 символов"
+            passwordInputLayout.error = "Минимум 6 символов"
             valid = false
         }
 
@@ -252,14 +244,13 @@ class RegistrationActivity : AppCompatActivity() {
     private fun validatePhoneInput(phone: String, password: String): Boolean {
         phoneInputLayout.error = null
         passwordInputLayout.error = null
-
         var valid = true
 
         if (phone.isEmpty()) {
             phoneInputLayout.error = "Введите номер телефона"
             valid = false
         } else if (phone.length < 10) {
-            phoneInputLayout.error = "Номер должен содержать минимум 10 цифр"
+            phoneInputLayout.error = "Номер должен содержать 10 цифр"
             valid = false
         }
 
@@ -267,7 +258,7 @@ class RegistrationActivity : AppCompatActivity() {
             passwordInputLayout.error = "Введите пароль"
             valid = false
         } else if (password.length < 6) {
-            passwordInputLayout.error = "Пароль должен содержать минимум 6 символов"
+            passwordInputLayout.error = "Минимум 6 символов"
             valid = false
         }
 
@@ -277,44 +268,31 @@ class RegistrationActivity : AppCompatActivity() {
     private fun getErrorMessage(exception: Throwable): String {
         val message = exception.message ?: ""
         return when {
-            message.contains("INVALID_LOGIN_CREDENTIALS") ||
-                    message.contains("incorrect") || message.contains("malformed") ->
-                "Неверные данные для входа. Проверьте правильность."
+            message.contains("INVALID_LOGIN_CREDENTIALS", true) -> "Неверные данные для входа."
+            message.contains("USER_NOT_FOUND", true) -> "Пользователь не найден."
+            message.contains("INVALID_PASSWORD", true) -> "Неверный пароль."
+            message.contains("EMAIL_EXISTS", true) || message.contains(
+                "PHONE_EXISTS",
+                true
+            ) -> "Этот email или телефон уже зарегистрирован."
 
-            message.contains("USER_NOT_FOUND") ||
-                    message.contains("no user record") ->
-                "Пользователь не найден. Пройдите регистрацию."
+            message.contains("WEAK_PASSWORD", true) -> "Слабый пароль."
+            message.contains("INVALID_EMAIL", true) -> "Некорректный email."
+            message.contains(
+                "TOO_MANY_ATTEMPTS",
+                true
+            ) -> "Слишком много попыток. Попробуйте позже."
 
-            message.contains("INVALID_PASSWORD") ||
-                    message.contains("wrong password") ->
-                "Неверный пароль. Попробуйте еще раз."
-
-            message.contains("EMAIL_EXISTS") ||
-                    message.contains("PHONE_EXISTS") ||
-                    message.contains("already in use") ->
-                "Этот email или телефон уже зарегистрирован."
-
-            message.contains("WEAK_PASSWORD") ||
-                    message.contains("weak") ->
-                "Слишком слабый пароль. Используйте минимум 6 символов."
-
-            message.contains("INVALID_EMAIL") ||
-                    message.contains("badly formatted") ->
-                "Неверный формат email."
-
-            message.contains("TOO_MANY_ATTEMPTS") ||
-                    message.contains("too many") ->
-                "Слишком много попыток. Попробуйте позже."
-
-            message.contains("NETWORK_ERROR") ||
-                    message.contains("network") ->
-                "Проблема с интернетом. Проверьте соединение."
-
-            message.contains("USER_DISABLED") ->
-                "Аккаунт отключен. Обратитесь в поддержку."
-
+            message.contains("NETWORK_ERROR", true) -> "Проблема с интернетом."
             else -> "Произошла ошибка. Попробуйте еще раз."
         }
+    }
+
+    private fun navigateToMain() {
+        val intent = Intent(this, MainScreenActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     private fun showErrorDialog(title: String, message: String) {

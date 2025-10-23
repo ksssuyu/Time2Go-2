@@ -27,12 +27,13 @@ class RouteDetailActivity : AppCompatActivity() {
     private lateinit var route: Route
     private var routeId: String = ""
     private var isFavorite: Boolean = false
+    private var viewsIncremented: Boolean = false
 
-    // Views
     private lateinit var viewPager: ViewPager2
     private lateinit var tvTitle: TextView
     private lateinit var tvRating: TextView
     private lateinit var tvReviewsCount: TextView
+    private lateinit var tvReviewsHeader: TextView
     private lateinit var tvCategory: TextView
     private lateinit var tvDuration: TextView
     private lateinit var tvBudget: TextView
@@ -73,9 +74,6 @@ class RouteDetailActivity : AppCompatActivity() {
             initViews()
             loadRouteDetails()
             setupListeners()
-
-            // ✅ Увеличиваем счетчик просмотров
-            incrementViewsCounter()
         } catch (e: Exception) {
             Log.e(TAG, "Ошибка инициализации экрана", e)
             Toast.makeText(this, "Ошибка: ${e.message}", Toast.LENGTH_LONG).show()
@@ -88,6 +86,7 @@ class RouteDetailActivity : AppCompatActivity() {
         tvTitle = findViewById(R.id.tv_route_title)
         tvRating = findViewById(R.id.tv_route_rating)
         tvReviewsCount = findViewById(R.id.tv_reviews_count)
+        tvReviewsHeader = findViewById(R.id.tv_reviews_header)
         tvCategory = findViewById(R.id.tv_route_category)
         tvDuration = findViewById(R.id.tv_route_duration)
         tvBudget = findViewById(R.id.tv_route_budget)
@@ -122,22 +121,22 @@ class RouteDetailActivity : AppCompatActivity() {
             openAddReviewScreen()
         }
 
-        // ✅ Обработчик клика на счетчик отзывов
-        tvReviewsCount.setOnClickListener {
+        tvReviewsHeader.setOnClickListener {
             openAllReviewsScreen()
         }
     }
 
-    // ✅ НОВОЕ: Увеличение просмотров
     private fun incrementViewsCounter() {
-        lifecycleScope.launch {
-            repository.incrementViews(routeId).onSuccess {
-                Log.d(TAG, "Просмотры увеличены")
-                // Обновляем UI
-                val currentViews = tvViews.text.toString().toIntOrNull() ?: 0
-                tvViews.text = (currentViews + 1).toString()
-            }.onFailure {
-                Log.e(TAG, "Ошибка увеличения просмотров", it)
+        if (!viewsIncremented) {
+            lifecycleScope.launch {
+                repository.incrementViews(routeId).onSuccess {
+                    viewsIncremented = true
+                    Log.d(TAG, "Просмотры увеличены")
+                    val currentViews = route.views
+                    tvViews.text = (currentViews + 1).toString()
+                }.onFailure {
+                    Log.e(TAG, "Ошибка увеличения просмотров", it)
+                }
             }
         }
     }
@@ -155,7 +154,6 @@ class RouteDetailActivity : AppCompatActivity() {
         startActivityForResult(intent, REQUEST_ADD_REVIEW)
     }
 
-    // ✅ НОВОЕ: Открытие экрана всех отзывов
     private fun openAllReviewsScreen() {
         val intent = Intent(this, AllReviewsActivity::class.java)
         intent.putExtra(AllReviewsActivity.EXTRA_ROUTE_ID, routeId)
@@ -166,11 +164,13 @@ class RouteDetailActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_ADD_REVIEW && resultCode == Activity.RESULT_OK) {
-            // Перезагружаем отзывы и обновляем счетчик
             loadReviews()
-            // ✅ Обновляем счетчик отзывов
-            val currentCount = route.reviewsCount + 1
-            tvReviewsCount.text = "$currentCount отзывов"
+            lifecycleScope.launch {
+                repository.getRouteById(routeId).onSuccess { updatedRoute ->
+                    route = updatedRoute
+                    tvReviewsCount.text = "${route.reviewsCount} отзывов"
+                }
+            }
             Toast.makeText(this, "Спасибо за отзыв!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -178,12 +178,13 @@ class RouteDetailActivity : AppCompatActivity() {
     private fun loadRouteDetails() {
         lifecycleScope.launch {
             try {
-                // Загружаем детали маршрута
                 repository.getRouteById(routeId).onSuccess { loadedRoute ->
                     route = loadedRoute
                     displayRouteInfo()
                     loadReviews()
                     checkFavoriteStatus()
+
+                    incrementViewsCounter()
                 }.onFailure { error ->
                     Log.e(TAG, "Ошибка загрузки маршрута", error)
                     Toast.makeText(
@@ -202,7 +203,6 @@ class RouteDetailActivity : AppCompatActivity() {
     }
 
     private fun displayRouteInfo() {
-        // Заголовок и основная информация
         tvTitle.text = route.title
         tvRating.text = String.format("%.1f", route.rating)
         tvReviewsCount.text = "${route.reviewsCount} отзывов"
@@ -224,7 +224,6 @@ class RouteDetailActivity : AppCompatActivity() {
         tvLikes.text = route.likes.toString()
         tvViews.text = route.views.toString()
 
-        // Галерея изображений
         val images = if (route.images.isNotEmpty()) {
             route.images
         } else if (route.imageUrl.isNotEmpty()) {
@@ -240,7 +239,7 @@ class RouteDetailActivity : AppCompatActivity() {
 
     private fun loadReviews() {
         lifecycleScope.launch {
-            repository.getRouteReviews(routeId, 10).onSuccess { reviews ->
+            repository.getTopRouteReviews(routeId, 3).onSuccess { reviews ->
                 displayReviews(reviews)
             }.onFailure { error ->
                 Log.e(TAG, "Ошибка загрузки отзывов", error)
@@ -250,10 +249,52 @@ class RouteDetailActivity : AppCompatActivity() {
 
     private fun displayReviews(reviews: List<Review>) {
         if (reviews.isEmpty()) {
-            // Можно показать placeholder "Отзывов пока нет"
             return
         }
-        rvReviews.adapter = ReviewsAdapter(reviews)
+
+        rvReviews.adapter = ReviewsAdapter(reviews,
+            onLikeClick = { review, position ->
+                handleReviewLike(review)
+            },
+            onImageClick = { imageUrl ->
+                openImageViewer(imageUrl)
+            }
+        )
+    }
+
+    private fun handleReviewLike(review: Review) {
+        val userId = repository.getCurrentUser()?.uid
+        if (userId == null) {
+            Toast.makeText(this, "Войдите, чтобы поставить лайк", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Log.d(TAG, "Попытка лайкнуть отзыв: reviewId=${review.reviewId}, userId=$userId")
+
+        lifecycleScope.launch {
+            repository.toggleReviewLike(userId, review.reviewId).onSuccess { liked ->
+                Log.d(TAG, "Лайк успешно переключен: $liked")
+                loadReviews()
+                Toast.makeText(
+                    this@RouteDetailActivity,
+                    if (liked) "Лайк добавлен" else "Лайк удален",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }.onFailure { error ->
+                Log.e(TAG, "Ошибка при лайке отзыва: ${error.message}", error)
+                Toast.makeText(
+                    this@RouteDetailActivity,
+                    "Ошибка: ${error.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun openImageViewer(imageUrl: String) {
+        val intent = Intent(this, ImageViewerActivity::class.java)
+        intent.putExtra(ImageViewerActivity.EXTRA_IMAGE_URL, imageUrl)
+        startActivity(intent)
     }
 
     private fun checkFavoriteStatus() {
@@ -289,7 +330,6 @@ class RouteDetailActivity : AppCompatActivity() {
                 repository.removeFromFavorites(userId, routeId).onSuccess {
                     isFavorite = false
                     updateFavoriteButton()
-                    // ✅ Обновляем счетчик лайков
                     val currentLikes = tvLikes.text.toString().toIntOrNull() ?: 0
                     tvLikes.text = (currentLikes - 1).coerceAtLeast(0).toString()
                     Toast.makeText(this@RouteDetailActivity, "Удалено из избранного", Toast.LENGTH_SHORT).show()
@@ -298,7 +338,6 @@ class RouteDetailActivity : AppCompatActivity() {
                 repository.addToFavorites(userId, routeId).onSuccess {
                     isFavorite = true
                     updateFavoriteButton()
-                    // ✅ Обновляем счетчик лайков
                     val currentLikes = tvLikes.text.toString().toIntOrNull() ?: 0
                     tvLikes.text = (currentLikes + 1).toString()
                     Toast.makeText(this@RouteDetailActivity, "Добавлено в избранное", Toast.LENGTH_SHORT).show()
@@ -309,14 +348,11 @@ class RouteDetailActivity : AppCompatActivity() {
 
     private fun startRouteNavigation() {
         Toast.makeText(this, "Навигация будет добавлена позже", Toast.LENGTH_SHORT).show()
-        // TODO: Реализовать навигацию в следующих версиях
     }
 
-    // ✅ Обновляем данные при возврате на экран
     override fun onResume() {
         super.onResume()
-        // Перезагружаем данные маршрута, чтобы обновить счетчики
-        if (::route.isInitialized) {
+        if (::route.isInitialized && !viewsIncremented) {
             lifecycleScope.launch {
                 repository.getRouteById(routeId).onSuccess { updatedRoute ->
                     route = updatedRoute

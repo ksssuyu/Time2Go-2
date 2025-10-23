@@ -34,7 +34,6 @@ class ForgotPasswordActivity : AppCompatActivity() {
         btnSendReset = findViewById(R.id.btn_send_reset)
         btnBack = findViewById(R.id.btn_back)
 
-        // Очищаем текст
         emailInput.setText("")
     }
 
@@ -107,7 +106,6 @@ class ForgotPasswordActivity : AppCompatActivity() {
             .setMessage("Инструкции по восстановлению пароля отправлены на $email\n\nПроверьте папку \"Спам\", если письмо не пришло.")
             .setPositiveButton("Понятно") { dialog, _ ->
                 dialog.dismiss()
-                // Очищаем поле ввода
                 emailInput.setText("")
             }
             .setCancelable(true)

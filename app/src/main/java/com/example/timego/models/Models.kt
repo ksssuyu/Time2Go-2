@@ -3,7 +3,6 @@ package com.example.timego.models
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.GeoPoint
 
-// Модель пользователя
 data class User(
     val userId: String = "",
     val name: String = "",
@@ -20,7 +19,6 @@ data class UserSettings(
     val notifications: Boolean = true
 )
 
-// Модель маршрута
 data class Route(
     val routeId: String = "",
     val title: String = "",
@@ -36,7 +34,7 @@ data class Route(
     val durationMinutes: Int = 0,
     val category: String = "",
     val categoryName: String = "",
-    val type: String = "", // "popular" или "user"
+    val type: String = "",
     val difficulty: String = "",
     val createdBy: String = "",
     val creatorName: String = "",
@@ -67,7 +65,6 @@ data class RouteData(
     val polyline: String = ""
 )
 
-// Модель категории
 data class Category(
     val categoryId: String = "",
     val name: String = "",

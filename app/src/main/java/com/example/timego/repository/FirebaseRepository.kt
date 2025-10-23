@@ -19,8 +19,6 @@ class FirebaseRepository {
         private const val TAG = "FirebaseRepository"
     }
 
-    // ===== AUTHENTICATION =====
-
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
     suspend fun signUp(email: String, password: String, name: String): Result<FirebaseUser> {
@@ -137,7 +135,6 @@ class FirebaseRepository {
         Log.d(TAG, "Пользователь вышел из системы")
     }
 
-    // ===== USER DATA =====
 
     suspend fun getUserData(userId: String): Result<User> {
         return try {
@@ -155,7 +152,6 @@ class FirebaseRepository {
         }
     }
 
-    // ===== ROUTES =====
 
     suspend fun getPopularRoutes(limit: Int = 10): Result<List<Route>> {
         return try {
@@ -272,7 +268,6 @@ class FirebaseRepository {
         }
     }
 
-    // ===== ✅ НОВОЕ: ОБНОВЛЕНИЕ СЧЕТЧИКОВ =====
 
     suspend fun incrementViews(routeId: String): Result<Unit> {
         return try {
@@ -344,7 +339,6 @@ class FirebaseRepository {
         }
     }
 
-    // ===== FAVORITES =====
 
     suspend fun addToFavorites(userId: String, routeId: String): Result<Unit> {
         return try {
@@ -358,7 +352,6 @@ class FirebaseRepository {
                 .add(favoriteData)
                 .await()
 
-            // ✅ Увеличиваем счетчик лайков
             incrementLikes(routeId)
 
             Log.d(TAG, "Маршрут добавлен в избранное: $routeId")
@@ -379,7 +372,6 @@ class FirebaseRepository {
 
             snapshot.documents.forEach { it.reference.delete().await() }
 
-            // ✅ Уменьшаем счетчик лайков
             decrementLikes(routeId)
 
             Log.d(TAG, "Маршрут удален из избранного: $routeId")
@@ -420,7 +412,6 @@ class FirebaseRepository {
         }
     }
 
-    // ===== REVIEWS =====
 
     suspend fun getRouteReviews(routeId: String, limit: Int = 20): Result<List<com.example.timego.models.Review>> {
         return try {
@@ -472,7 +463,6 @@ class FirebaseRepository {
                 .add(reviewData)
                 .await()
 
-            // ✅ Увеличиваем счетчик отзывов
             val routeId = reviewData["routeId"] as? String
             if (routeId != null) {
                 incrementReviewsCount(routeId)
@@ -493,13 +483,101 @@ class FirebaseRepository {
                 .delete()
                 .await()
 
-            // ✅ Уменьшаем счетчик отзывов
             decrementReviewsCount(routeId)
 
             Log.d(TAG, "Отзыв успешно удален")
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Ошибка удаления отзыва", e)
+            Result.failure(e)
+        }
+    }
+    suspend fun toggleReviewLike(userId: String, reviewId: String): Result<Boolean> {
+        return try {
+            Log.d(TAG, "Переключение лайка отзыва: userId=$userId, reviewId=$reviewId")
+
+            val likeSnapshot = firestore.collection("review_likes")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("reviewId", reviewId)
+                .limit(1)
+                .get()
+                .await()
+
+            if (likeSnapshot.isEmpty) {
+                val likeData = hashMapOf(
+                    "userId" to userId,
+                    "reviewId" to reviewId,
+                    "createdAt" to com.google.firebase.Timestamp.now()
+                )
+                firestore.collection("review_likes")
+                    .add(likeData)
+                    .await()
+
+                firestore.collection("reviews")
+                    .document(reviewId)
+                    .update("likes", FieldValue.increment(1))
+                    .await()
+
+                Log.d(TAG, "Лайк добавлен к отзыву: $reviewId")
+                Result.success(true)
+            } else {
+                likeSnapshot.documents.forEach { it.reference.delete().await() }
+
+                firestore.collection("reviews")
+                    .document(reviewId)
+                    .update("likes", FieldValue.increment(-1))
+                    .await()
+
+                Log.d(TAG, "Лайк удален с отзыва: $reviewId")
+                Result.success(false)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка переключения лайка отзыва: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun isReviewLiked(userId: String, reviewId: String): Result<Boolean> {
+        return try {
+            val snapshot = firestore.collection("review_likes")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("reviewId", reviewId)
+                .limit(1)
+                .get()
+                .await()
+
+            Result.success(!snapshot.isEmpty)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка проверки лайка отзыва", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getTopRouteReviews(routeId: String, limit: Int = 3): Result<List<com.example.timego.models.Review>> {
+        return try {
+            Log.d(TAG, "Запрос топ отзывов для маршрута: $routeId")
+
+            val snapshot = firestore.collection("reviews")
+                .whereEqualTo("routeId", routeId)
+                .orderBy("likes", Query.Direction.DESCENDING)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(limit.toLong())
+                .get()
+                .await()
+
+            val reviews = snapshot.documents.mapNotNull { doc ->
+                try {
+                    doc.toObject(com.example.timego.models.Review::class.java)?.copy(reviewId = doc.id)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Ошибка парсинга отзыва ${doc.id}", e)
+                    null
+                }
+            }
+
+            Log.d(TAG, "Загружено топ отзывов: ${reviews.size}")
+            Result.success(reviews)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки топ отзывов", e)
             Result.failure(e)
         }
     }

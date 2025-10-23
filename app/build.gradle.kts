@@ -59,8 +59,11 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
-    // ViewPager2 для галереи
+    // ViewPager2
     implementation("androidx.viewpager2:viewpager2:1.0.0")
+
+    // PhotoView
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
     // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
@@ -69,7 +72,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
-    // Play Services для Phone Auth
+    // Play Services
     implementation("com.google.android.gms:play-services-auth-api-phone:18.0.1")
 
     // Coroutines
@@ -85,7 +88,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
-    // OkHttp для загрузки на Imgbb
+    // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Gson

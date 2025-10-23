@@ -18,7 +18,6 @@
             android:contentDescription="Фото отзыва"
             android:scaleType="centerCrop" />
 
-        <!-- Кнопка удаления -->
         <ImageView
             android:id="@+id/btn_delete_image"
             android:layout_width="32dp"

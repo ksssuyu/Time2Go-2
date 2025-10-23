@@ -20,20 +20,16 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val hasCompletedOnboarding = prefs.getBoolean("onboarding_completed", false)
 
-        // Проверяем, залогинен ли пользователь через Firebase
         val currentUser = auth.currentUser
 
         when {
             !hasCompletedOnboarding -> {
-                // Запускаем первый онбординг
                 startActivity(Intent(this, Onboarding1Activity::class.java))
             }
             currentUser == null -> {
-                // Пользователь не залогинен - показываем экран регистрации
                 startActivity(Intent(this, RegistrationActivity::class.java))
             }
             else -> {
-                // Пользователь залогинен - показываем главный экран
                 startActivity(Intent(this, MainScreenActivity::class.java))
             }
         }

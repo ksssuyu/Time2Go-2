@@ -1,5 +1,6 @@
 package com.example.timego.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
@@ -70,7 +71,6 @@ class AllReviewsActivity : AppCompatActivity() {
     private fun loadAllReviews() {
         lifecycleScope.launch {
             try {
-                // Загружаем все отзывы (без лимита или с большим лимитом)
                 repository.getRouteReviews(routeId, 100).onSuccess { reviews ->
                     displayReviews(reviews)
                 }.onFailure { error ->
@@ -91,10 +91,57 @@ class AllReviewsActivity : AppCompatActivity() {
     private fun displayReviews(reviews: List<Review>) {
         if (reviews.isEmpty()) {
             tvReviewsCount.text = "Отзывов пока нет"
+            rvAllReviews.visibility = android.view.View.GONE
+            findViewById<android.view.View>(R.id.empty_state).visibility = android.view.View.VISIBLE
             return
         }
 
         tvReviewsCount.text = "Всего отзывов: ${reviews.size}"
-        rvAllReviews.adapter = ReviewsAdapter(reviews)
+        rvAllReviews.visibility = android.view.View.VISIBLE
+        findViewById<android.view.View>(R.id.empty_state).visibility = android.view.View.GONE
+
+        rvAllReviews.adapter = ReviewsAdapter(reviews,
+            onLikeClick = { review, position ->
+                handleReviewLike(review)
+            },
+            onImageClick = { imageUrl ->
+                openImageViewer(imageUrl)
+            }
+        )
+    }
+
+    private fun handleReviewLike(review: Review) {
+        val userId = repository.getCurrentUser()?.uid
+        if (userId == null) {
+            Toast.makeText(this, "Войдите, чтобы поставить лайк", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Log.d(TAG, "Попытка лайкнуть отзыв: reviewId=${review.reviewId}, userId=$userId")
+
+        lifecycleScope.launch {
+            repository.toggleReviewLike(userId, review.reviewId).onSuccess { liked ->
+                Log.d(TAG, "Лайк успешно переключен: $liked")
+                loadAllReviews()
+                Toast.makeText(
+                    this@AllReviewsActivity,
+                    if (liked) "Лайк добавлен" else "Лайк удален",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }.onFailure { error ->
+                Log.e(TAG, "Ошибка при лайке отзыва: ${error.message}", error)
+                Toast.makeText(
+                    this@AllReviewsActivity,
+                    "Ошибка: ${error.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun openImageViewer(imageUrl: String) {
+        val intent = Intent(this, ImageViewerActivity::class.java)
+        intent.putExtra(ImageViewerActivity.EXTRA_IMAGE_URL, imageUrl)
+        startActivity(intent)
     }
 }
