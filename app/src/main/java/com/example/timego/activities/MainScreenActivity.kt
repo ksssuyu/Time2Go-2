@@ -6,11 +6,9 @@ import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
-import com.example.timego.MainActivity
 import com.example.timego.R
 import com.example.timego.models.Route
 import com.example.timego.repository.FirebaseRepository
@@ -26,34 +24,6 @@ class MainScreenActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainScreenActivity"
-    }
-
-    private fun showProfileDialog() {
-        val user = auth.currentUser
-        val email = user?.email ?: "Не указан"
-
-        AlertDialog.Builder(this)
-            .setTitle("Профиль")
-            .setMessage("Email: $email")
-            .setPositiveButton("Выйти") { _, _ ->
-                logout()
-            }
-            .setNegativeButton("Отмена", null)
-            .show()
-    }
-
-    private fun logout() {
-        auth.signOut()
-
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        prefs.edit().clear().apply()
-
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
-
-        Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show()
     }
 
     private fun loadRoutes() {
@@ -77,7 +47,7 @@ class MainScreenActivity : AppCompatActivity() {
                 }
 
                 Log.d(TAG, "Начинаем загрузку пользовательских маршрутов")
-                repository.getUserRoutes(3).onSuccess { routes ->
+                repository.getUserRoutes(5).onSuccess { routes ->
                     Log.d(TAG, "Загружено пользовательских маршрутов: ${routes.size}")
                     if (routes.isEmpty()) {
                         Log.w(TAG, "Нет пользовательских маршрутов в базе данных")
@@ -117,7 +87,6 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.popular_route_card_1,
                     R.id.popular_route_image_1,
                     R.id.popular_route_name_1,
-                    R.id.popular_route_rating_1,
                     R.id.popular_route_details_1,
                     route
                 )
@@ -125,7 +94,6 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.popular_route_card_2,
                     R.id.popular_route_image_2,
                     R.id.popular_route_name_2,
-                    R.id.popular_route_rating_2,
                     R.id.popular_route_details_2,
                     route
                 )
@@ -133,7 +101,6 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.popular_route_card_3,
                     R.id.popular_route_image_3,
                     R.id.popular_route_name_3,
-                    R.id.popular_route_rating_3,
                     R.id.popular_route_details_3,
                     route
                 )
@@ -155,7 +122,6 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.user_route_card_1,
                     R.id.user_route_image_1,
                     R.id.user_route_name_1,
-                    R.id.user_route_rating_1,
                     R.id.user_route_details_1,
                     route
                 )
@@ -163,7 +129,6 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.user_route_card_2,
                     R.id.user_route_image_2,
                     R.id.user_route_name_2,
-                    R.id.user_route_rating_2,
                     R.id.user_route_details_2,
                     route
                 )
@@ -171,7 +136,6 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.user_route_card_3,
                     R.id.user_route_image_3,
                     R.id.user_route_name_3,
-                    R.id.user_route_rating_3,
                     R.id.user_route_details_3,
                     route
                 )
@@ -179,7 +143,6 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.user_route_card_4,
                     R.id.user_route_image_4,
                     R.id.user_route_name_4,
-                    R.id.user_route_rating_4,
                     R.id.user_route_details_4,
                     route
                 )
@@ -187,7 +150,6 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.user_route_card_5,
                     R.id.user_route_image_5,
                     R.id.user_route_name_5,
-                    R.id.user_route_rating_5,
                     R.id.user_route_details_5,
                     route
                 )
@@ -199,7 +161,6 @@ class MainScreenActivity : AppCompatActivity() {
         cardId: Int,
         imageId: Int,
         nameId: Int,
-        ratingId: Int,
         detailsId: Int,
         route: Route
     ) {
@@ -207,14 +168,12 @@ class MainScreenActivity : AppCompatActivity() {
             val card = findViewById<CardView>(cardId)
             val image = findViewById<ImageView>(imageId)
             val name = findViewById<TextView>(nameId)
-            val rating = findViewById<TextView>(ratingId)
             val details = findViewById<TextView>(detailsId)
 
             Log.d(TAG, "Загружаем изображение для маршрута: ${route.title}, URL: ${route.imageUrl}")
             ImageLoader.loadImage(image, route.imageUrl, R.drawable.ic_home)
 
             name.text = route.title
-            rating.text = String.format("%.1f", route.rating)
             details.text = if (route.shortDescription.isNotEmpty()) {
                 route.shortDescription
             } else {
@@ -247,24 +206,26 @@ class MainScreenActivity : AppCompatActivity() {
             Toast.makeText(this, "Ошибка обновления карточки: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun setupBottomNavigation() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigation.selectedItemId = R.id.nav_home
+
         bottomNavigation.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    Toast.makeText(this, "Главная", Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.nav_profile -> {
-                    showProfileDialog()
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.nav_messages -> {
-                    Toast.makeText(this, "Чат с ассистентом", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Чат с ассистентом в разработке", Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.nav_favorites -> {
-                    // ✅ Открываем экран избранного
                     val intent = Intent(this, FavoritesActivity::class.java)
                     startActivity(intent)
                     true
@@ -274,7 +235,6 @@ class MainScreenActivity : AppCompatActivity() {
         }
     }
 
-    // ✅ НОВОЕ: Загружаем и отображаем username в приветствии
     private fun loadUserName() {
         lifecycleScope.launch {
             try {
@@ -292,29 +252,27 @@ class MainScreenActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        // ✅ Клик на заголовок "Пользовательские маршруты"
         findViewById<TextView>(R.id.user_routes_title).setOnClickListener {
             val intent = Intent(this, AllUserRoutesActivity::class.java)
             startActivity(intent)
         }
 
-        // ✅ Клики на категории
-        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_1).setOnClickListener {
+        findViewById<CardView>(R.id.category_card_1).setOnClickListener {
             openCategoryRoutes("nature", "Природа")
         }
-        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_2).setOnClickListener {
+        findViewById<CardView>(R.id.category_card_2).setOnClickListener {
             openCategoryRoutes("history", "История и наследие")
         }
-        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_3).setOnClickListener {
+        findViewById<CardView>(R.id.category_card_3).setOnClickListener {
             openCategoryRoutes("active", "Активный отдых")
         }
-        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_4).setOnClickListener {
+        findViewById<CardView>(R.id.category_card_4).setOnClickListener {
             openCategoryRoutes("gastronomy", "Гастрономия")
         }
-        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_5).setOnClickListener {
+        findViewById<CardView>(R.id.category_card_5).setOnClickListener {
             openCategoryRoutes("family", "Семейный отдых")
         }
-        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_6).setOnClickListener {
+        findViewById<CardView>(R.id.category_card_6).setOnClickListener {
             openCategoryRoutes("ethnic", "Этнография")
         }
     }
@@ -333,7 +291,7 @@ class MainScreenActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         setupBottomNavigation()
-        setupClickListeners() // ✅ Настраиваем клики
+        setupClickListeners()
         loadRoutes()
         loadUserName()
     }

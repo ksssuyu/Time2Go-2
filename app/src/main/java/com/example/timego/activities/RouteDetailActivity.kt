@@ -27,12 +27,9 @@ class RouteDetailActivity : AppCompatActivity() {
     private lateinit var route: Route
     private var routeId: String = ""
     private var isFavorite: Boolean = false
-    private var viewsIncremented: Boolean = false
 
     private lateinit var viewPager: ViewPager2
     private lateinit var tvTitle: TextView
-    private lateinit var tvRating: TextView
-    private lateinit var tvReviewsCount: TextView
     private lateinit var tvReviewsHeader: TextView
     private lateinit var tvCategory: TextView
     private lateinit var tvDuration: TextView
@@ -40,8 +37,6 @@ class RouteDetailActivity : AppCompatActivity() {
     private lateinit var tvDifficulty: TextView
     private lateinit var tvDescription: TextView
     private lateinit var tvCreator: TextView
-    private lateinit var tvLikes: TextView
-    private lateinit var tvViews: TextView
     private lateinit var btnFavorite: MaterialButton
     private lateinit var btnStartRoute: MaterialButton
     private lateinit var btnAddReview: MaterialButton
@@ -84,8 +79,6 @@ class RouteDetailActivity : AppCompatActivity() {
     private fun initViews() {
         viewPager = findViewById(R.id.image_gallery)
         tvTitle = findViewById(R.id.tv_route_title)
-        tvRating = findViewById(R.id.tv_route_rating)
-        tvReviewsCount = findViewById(R.id.tv_reviews_count)
         tvReviewsHeader = findViewById(R.id.tv_reviews_header)
         tvCategory = findViewById(R.id.tv_route_category)
         tvDuration = findViewById(R.id.tv_route_duration)
@@ -93,8 +86,6 @@ class RouteDetailActivity : AppCompatActivity() {
         tvDifficulty = findViewById(R.id.tv_route_difficulty)
         tvDescription = findViewById(R.id.tv_route_description)
         tvCreator = findViewById(R.id.tv_route_creator)
-        tvLikes = findViewById(R.id.tv_route_likes)
-        tvViews = findViewById(R.id.tv_route_views)
         btnFavorite = findViewById(R.id.btn_favorite)
         btnStartRoute = findViewById(R.id.btn_start_route)
         btnAddReview = findViewById(R.id.btn_add_review)
@@ -126,21 +117,6 @@ class RouteDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun incrementViewsCounter() {
-        if (!viewsIncremented) {
-            lifecycleScope.launch {
-                repository.incrementViews(routeId).onSuccess {
-                    viewsIncremented = true
-                    Log.d(TAG, "Просмотры увеличены")
-                    val currentViews = route.views
-                    tvViews.text = (currentViews + 1).toString()
-                }.onFailure {
-                    Log.e(TAG, "Ошибка увеличения просмотров", it)
-                }
-            }
-        }
-    }
-
     private fun openAddReviewScreen() {
         val user = repository.getCurrentUser()
         if (user == null) {
@@ -165,12 +141,6 @@ class RouteDetailActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_ADD_REVIEW && resultCode == Activity.RESULT_OK) {
             loadReviews()
-            lifecycleScope.launch {
-                repository.getRouteById(routeId).onSuccess { updatedRoute ->
-                    route = updatedRoute
-                    tvReviewsCount.text = "${route.reviewsCount} отзывов"
-                }
-            }
             Toast.makeText(this, "Спасибо за отзыв!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -183,8 +153,6 @@ class RouteDetailActivity : AppCompatActivity() {
                     displayRouteInfo()
                     loadReviews()
                     checkFavoriteStatus()
-
-                    incrementViewsCounter()
                 }.onFailure { error ->
                     Log.e(TAG, "Ошибка загрузки маршрута", error)
                     Toast.makeText(
@@ -204,8 +172,6 @@ class RouteDetailActivity : AppCompatActivity() {
 
     private fun displayRouteInfo() {
         tvTitle.text = route.title
-        tvRating.text = String.format("%.1f", route.rating)
-        tvReviewsCount.text = "${route.reviewsCount} отзывов"
         tvCategory.text = route.categoryName
         tvDuration.text = route.duration
         tvBudget.text = if (route.budgetAmount > 0) {
@@ -221,8 +187,6 @@ class RouteDetailActivity : AppCompatActivity() {
         }
         tvDescription.text = route.fullDescription.ifEmpty { route.shortDescription }
         tvCreator.text = "Создатель: ${route.creatorName.ifEmpty { "Неизвестен" }}"
-        tvLikes.text = route.likes.toString()
-        tvViews.text = route.views.toString()
 
         val images = if (route.images.isNotEmpty()) {
             route.images
@@ -330,16 +294,12 @@ class RouteDetailActivity : AppCompatActivity() {
                 repository.removeFromFavorites(userId, routeId).onSuccess {
                     isFavorite = false
                     updateFavoriteButton()
-                    val currentLikes = tvLikes.text.toString().toIntOrNull() ?: 0
-                    tvLikes.text = (currentLikes - 1).coerceAtLeast(0).toString()
                     Toast.makeText(this@RouteDetailActivity, "Удалено из избранного", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 repository.addToFavorites(userId, routeId).onSuccess {
                     isFavorite = true
                     updateFavoriteButton()
-                    val currentLikes = tvLikes.text.toString().toIntOrNull() ?: 0
-                    tvLikes.text = (currentLikes + 1).toString()
                     Toast.makeText(this@RouteDetailActivity, "Добавлено в избранное", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -348,19 +308,5 @@ class RouteDetailActivity : AppCompatActivity() {
 
     private fun startRouteNavigation() {
         Toast.makeText(this, "Навигация будет добавлена позже", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (::route.isInitialized && !viewsIncremented) {
-            lifecycleScope.launch {
-                repository.getRouteById(routeId).onSuccess { updatedRoute ->
-                    route = updatedRoute
-                    tvLikes.text = route.likes.toString()
-                    tvViews.text = route.views.toString()
-                    tvReviewsCount.text = "${route.reviewsCount} отзывов"
-                }
-            }
-        }
     }
 }

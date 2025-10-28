@@ -114,26 +114,6 @@
                                 android:maxLines="2"
                                 android:ellipsize="end" />
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:id="@+id/popular_route_rating_1"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:drawableStart="@android:drawable/star_on"
-                                    android:drawablePadding="4dp"
-                                    android:drawableTint="#FFC107"
-                                    android:fontFamily="sans-serif"
-                                    android:text="4.9"
-                                    android:textColor="#B8B5B2"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
                             <TextView
                                 android:id="@+id/popular_route_details_1"
                                 android:layout_width="match_parent"
@@ -184,26 +164,6 @@
                                 android:maxLines="2"
                                 android:ellipsize="end" />
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:id="@+id/popular_route_rating_2"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:drawableStart="@android:drawable/star_on"
-                                    android:drawablePadding="4dp"
-                                    android:drawableTint="#FFC107"
-                                    android:fontFamily="sans-serif"
-                                    android:text="4.8"
-                                    android:textColor="#B8B5B2"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
                             <TextView
                                 android:id="@+id/popular_route_details_2"
                                 android:layout_width="match_parent"
@@ -253,26 +213,6 @@
                                 android:textSize="16sp"
                                 android:maxLines="2"
                                 android:ellipsize="end" />
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:id="@+id/popular_route_rating_3"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:drawableStart="@android:drawable/star_on"
-                                    android:drawablePadding="4dp"
-                                    android:drawableTint="#FFC107"
-                                    android:fontFamily="sans-serif"
-                                    android:text="4.8"
-                                    android:textColor="#B8B5B2"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/popular_route_details_3"
@@ -363,26 +303,6 @@
                                 android:maxLines="2"
                                 android:ellipsize="end" />
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:id="@+id/user_route_rating_1"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:drawableStart="@android:drawable/star_on"
-                                    android:drawablePadding="4dp"
-                                    android:drawableTint="#FFC107"
-                                    android:fontFamily="sans-serif"
-                                    android:text="4.7"
-                                    android:textColor="#B8B5B2"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
                             <TextView
                                 android:id="@+id/user_route_details_1"
                                 android:layout_width="match_parent"
@@ -432,26 +352,6 @@
                                 android:textSize="16sp"
                                 android:maxLines="2"
                                 android:ellipsize="end" />
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:id="@+id/user_route_rating_2"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:drawableStart="@android:drawable/star_on"
-                                    android:drawablePadding="4dp"
-                                    android:drawableTint="#FFC107"
-                                    android:fontFamily="sans-serif"
-                                    android:text="4.8"
-                                    android:textColor="#B8B5B2"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/user_route_details_2"
@@ -503,26 +403,6 @@
                                 android:maxLines="2"
                                 android:ellipsize="end" />
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:id="@+id/user_route_rating_3"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:drawableStart="@android:drawable/star_on"
-                                    android:drawablePadding="4dp"
-                                    android:drawableTint="#FFC107"
-                                    android:fontFamily="sans-serif"
-                                    android:text="4.8"
-                                    android:textColor="#B8B5B2"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
                             <TextView
                                 android:id="@+id/user_route_details_3"
                                 android:layout_width="match_parent"
@@ -572,26 +452,6 @@
                                 android:maxLines="2"
                                 android:ellipsize="end" />
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:id="@+id/user_route_rating_4"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:drawableStart="@android:drawable/star_on"
-                                    android:drawablePadding="4dp"
-                                    android:drawableTint="#FFC107"
-                                    android:fontFamily="sans-serif"
-                                    android:text="4.7"
-                                    android:textColor="#B8B5B2"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-
                             <TextView
                                 android:id="@+id/user_route_details_4"
                                 android:layout_width="match_parent"
@@ -640,26 +500,6 @@
                             android:textSize="16sp"
                             android:maxLines="2"
                             android:ellipsize="end" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:id="@+id/user_route_rating_5"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:drawableStart="@android:drawable/star_on"
-                                android:drawablePadding="4dp"
-                                android:drawableTint="#FFC107"
-                                android:fontFamily="sans-serif"
-                                android:text="4.8"
-                                android:textColor="#B8B5B2"
-                                android:textSize="14sp" />
-                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/user_route_details_5"

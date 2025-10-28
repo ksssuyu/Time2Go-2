@@ -10,10 +10,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.timego.R
-import com.example.timego.adapters.RoutesGridAdapter
+import com.example.timego.adapters.RoutesListAdapter
 import com.example.timego.models.Route
 import com.example.timego.repository.FirebaseRepository
 import kotlinx.coroutines.launch
@@ -63,7 +63,8 @@ class CategoryRoutesActivity : AppCompatActivity() {
         emptyState = findViewById(R.id.empty_state)
 
         tvTitle.text = categoryName
-        rvRoutes.layoutManager = GridLayoutManager(this, 2)
+        // Изменено на LinearLayoutManager
+        rvRoutes.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setupListeners() {
@@ -104,7 +105,7 @@ class CategoryRoutesActivity : AppCompatActivity() {
         rvRoutes.visibility = View.VISIBLE
         emptyState.visibility = View.GONE
 
-        rvRoutes.adapter = RoutesGridAdapter(routes) { route ->
+        rvRoutes.adapter = RoutesListAdapter(routes) { route ->
             openRouteDetail(route)
         }
     }

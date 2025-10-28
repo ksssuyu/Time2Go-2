@@ -10,10 +10,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.timego.R
-import com.example.timego.adapters.RoutesGridAdapter
+import com.example.timego.adapters.RoutesListAdapter
 import com.example.timego.models.Route
 import com.example.timego.repository.FirebaseRepository
 import kotlinx.coroutines.launch
@@ -49,7 +49,8 @@ class FavoritesActivity : AppCompatActivity() {
         rvFavorites = findViewById(R.id.rv_favorites)
         emptyState = findViewById(R.id.empty_state)
 
-        rvFavorites.layoutManager = GridLayoutManager(this, 2)
+        // Изменено на LinearLayoutManager для отображения по 1 маршруту
+        rvFavorites.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setupListeners() {
@@ -97,7 +98,8 @@ class FavoritesActivity : AppCompatActivity() {
         rvFavorites.visibility = View.VISIBLE
         emptyState.visibility = View.GONE
 
-        rvFavorites.adapter = RoutesGridAdapter(routes) { route ->
+        // Используем новый адаптер для списка
+        rvFavorites.adapter = RoutesListAdapter(routes) { route ->
             openRouteDetail(route)
         }
     }
