@@ -175,6 +175,22 @@ class MainScreenActivity : AppCompatActivity() {
                     R.id.user_route_details_3,
                     route
                 )
+                3 -> updateRouteCard(
+                    R.id.user_route_card_4,
+                    R.id.user_route_image_4,
+                    R.id.user_route_name_4,
+                    R.id.user_route_rating_4,
+                    R.id.user_route_details_4,
+                    route
+                )
+                4 -> updateRouteCard(
+                    R.id.user_route_card_5,
+                    R.id.user_route_image_5,
+                    R.id.user_route_name_5,
+                    R.id.user_route_rating_5,
+                    R.id.user_route_details_5,
+                    route
+                )
             }
         }
     }
@@ -231,7 +247,6 @@ class MainScreenActivity : AppCompatActivity() {
             Toast.makeText(this, "Ошибка обновления карточки: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
     private fun setupBottomNavigation() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigation.setOnItemSelectedListener { menuItem ->
@@ -249,6 +264,7 @@ class MainScreenActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_favorites -> {
+                    // ✅ Открываем экран избранного
                     val intent = Intent(this, FavoritesActivity::class.java)
                     startActivity(intent)
                     true
@@ -258,6 +274,7 @@ class MainScreenActivity : AppCompatActivity() {
         }
     }
 
+    // ✅ НОВОЕ: Загружаем и отображаем username в приветствии
     private fun loadUserName() {
         lifecycleScope.launch {
             try {
@@ -274,6 +291,41 @@ class MainScreenActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupClickListeners() {
+        // ✅ Клик на заголовок "Пользовательские маршруты"
+        findViewById<TextView>(R.id.user_routes_title).setOnClickListener {
+            val intent = Intent(this, AllUserRoutesActivity::class.java)
+            startActivity(intent)
+        }
+
+        // ✅ Клики на категории
+        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_1).setOnClickListener {
+            openCategoryRoutes("nature", "Природа")
+        }
+        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_2).setOnClickListener {
+            openCategoryRoutes("history", "История и наследие")
+        }
+        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_3).setOnClickListener {
+            openCategoryRoutes("active", "Активный отдых")
+        }
+        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_4).setOnClickListener {
+            openCategoryRoutes("gastronomy", "Гастрономия")
+        }
+        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_5).setOnClickListener {
+            openCategoryRoutes("family", "Семейный отдых")
+        }
+        findViewById<androidx.cardview.widget.CardView>(R.id.category_card_6).setOnClickListener {
+            openCategoryRoutes("ethnic", "Этнография")
+        }
+    }
+
+    private fun openCategoryRoutes(categorySlug: String, categoryName: String) {
+        val intent = Intent(this, CategoryRoutesActivity::class.java)
+        intent.putExtra(CategoryRoutesActivity.EXTRA_CATEGORY_SLUG, categorySlug)
+        intent.putExtra(CategoryRoutesActivity.EXTRA_CATEGORY_NAME, categoryName)
+        startActivity(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_screen)
@@ -281,12 +333,7 @@ class MainScreenActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         setupBottomNavigation()
-        loadRoutes()
-        loadUserName()
-    }
-
-    override fun onResume() {
-        super.onResume()
+        setupClickListeners() // ✅ Настраиваем клики
         loadRoutes()
         loadUserName()
     }

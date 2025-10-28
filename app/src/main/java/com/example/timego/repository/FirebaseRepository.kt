@@ -19,6 +19,7 @@ class FirebaseRepository {
         private const val TAG = "FirebaseRepository"
     }
 
+
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
     suspend fun signUp(email: String, password: String, name: String): Result<FirebaseUser> {
@@ -152,7 +153,6 @@ class FirebaseRepository {
         }
     }
 
-
     suspend fun getPopularRoutes(limit: Int = 10): Result<List<Route>> {
         return try {
             Log.d(TAG, "Запрос популярных маршрутов, лимит: $limit")
@@ -268,7 +268,6 @@ class FirebaseRepository {
         }
     }
 
-
     suspend fun incrementViews(routeId: String): Result<Unit> {
         return try {
             firestore.collection("routes")
@@ -338,7 +337,6 @@ class FirebaseRepository {
             Result.failure(e)
         }
     }
-
 
     suspend fun addToFavorites(userId: String, routeId: String): Result<Unit> {
         return try {
@@ -411,7 +409,6 @@ class FirebaseRepository {
             Result.failure(e)
         }
     }
-
 
     suspend fun getRouteReviews(routeId: String, limit: Int = 20): Result<List<com.example.timego.models.Review>> {
         return try {
@@ -492,6 +489,21 @@ class FirebaseRepository {
             Result.failure(e)
         }
     }
+
+
+    suspend fun createRoute(routeData: HashMap<String, Any>): Result<Unit> {
+        return try {
+            firestore.collection("routes")
+                .add(routeData)
+                .await()
+
+            Log.d(TAG, "Маршрут успешно создан")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка создания маршрута", e)
+            Result.failure(e)
+        }
+    }
     suspend fun toggleReviewLike(userId: String, reviewId: String): Result<Boolean> {
         return try {
             Log.d(TAG, "Переключение лайка отзыва: userId=$userId, reviewId=$reviewId")
@@ -509,6 +521,7 @@ class FirebaseRepository {
                     "reviewId" to reviewId,
                     "createdAt" to com.google.firebase.Timestamp.now()
                 )
+
                 firestore.collection("review_likes")
                     .add(likeData)
                     .await()

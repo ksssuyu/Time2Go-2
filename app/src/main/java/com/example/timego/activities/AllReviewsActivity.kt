@@ -120,7 +120,7 @@ class AllReviewsActivity : AppCompatActivity() {
         Log.d(TAG, "Попытка лайкнуть отзыв: reviewId=${review.reviewId}, userId=$userId")
 
         lifecycleScope.launch {
-            repository.toggleReviewLike(userId, review.reviewId).onSuccess { liked ->
+            repository.toggleReviewLike(userId, review.reviewId).onSuccess { liked: Boolean ->
                 Log.d(TAG, "Лайк успешно переключен: $liked")
                 loadAllReviews()
                 Toast.makeText(
@@ -128,7 +128,7 @@ class AllReviewsActivity : AppCompatActivity() {
                     if (liked) "Лайк добавлен" else "Лайк удален",
                     Toast.LENGTH_SHORT
                 ).show()
-            }.onFailure { error ->
+            }.onFailure { error: Throwable ->
                 Log.e(TAG, "Ошибка при лайке отзыва: ${error.message}", error)
                 Toast.makeText(
                     this@AllReviewsActivity,

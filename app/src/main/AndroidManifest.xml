@@ -77,5 +77,21 @@
             android:exported="false"
             android:theme="@style/theme.Time2Go" />
 
+        <activity
+            android:name=".activities.AllUserRoutesActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
+
+        <activity
+            android:name=".activities.CategoryRoutesActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
+
+        <activity
+            android:name=".activities.CreateRouteActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
+
     </application>
+
 </manifest>
