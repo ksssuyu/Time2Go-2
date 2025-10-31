@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -42,11 +43,13 @@ class RouteDetailActivity : AppCompatActivity() {
     private lateinit var btnAddReview: MaterialButton
     private lateinit var btnBack: ImageView
     private lateinit var rvReviews: RecyclerView
+    private lateinit var btnEdit: ImageView
 
     companion object {
         const val EXTRA_ROUTE_ID = "route_id"
         private const val TAG = "RouteDetailActivity"
         private const val REQUEST_ADD_REVIEW = 100
+        private const val REQUEST_EDIT_ROUTE = 200
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +94,7 @@ class RouteDetailActivity : AppCompatActivity() {
         btnAddReview = findViewById(R.id.btn_add_review)
         btnBack = findViewById(R.id.btn_back)
         rvReviews = findViewById(R.id.rv_reviews)
+        btnEdit = findViewById(R.id.btn_edit)
 
         rvReviews.layoutManager = LinearLayoutManager(this)
     }
@@ -142,6 +146,9 @@ class RouteDetailActivity : AppCompatActivity() {
         if (requestCode == REQUEST_ADD_REVIEW && resultCode == Activity.RESULT_OK) {
             loadReviews()
             Toast.makeText(this, "Спасибо за отзыв!", Toast.LENGTH_SHORT).show()
+        } else if (requestCode == REQUEST_EDIT_ROUTE && resultCode == Activity.RESULT_OK) {
+            loadRouteDetails()
+            Toast.makeText(this, "Маршрут обновлен!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -198,6 +205,15 @@ class RouteDetailActivity : AppCompatActivity() {
 
         if (images.isNotEmpty()) {
             viewPager.adapter = ImageGalleryAdapter(images)
+        }
+        val currentUserId = repository.getCurrentUser()?.uid
+        if (currentUserId == route.createdBy) {
+            btnEdit.visibility = View.VISIBLE
+            btnEdit.setOnClickListener {
+                openEditRoute()
+            }
+        } else {
+            btnEdit.visibility = View.GONE
         }
     }
 
@@ -308,5 +324,11 @@ class RouteDetailActivity : AppCompatActivity() {
 
     private fun startRouteNavigation() {
         Toast.makeText(this, "Навигация будет добавлена позже", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun openEditRoute() {
+        val intent = Intent(this, EditRouteActivity::class.java)
+        intent.putExtra(EditRouteActivity.EXTRA_ROUTE_ID, routeId)
+        startActivityForResult(intent, REQUEST_EDIT_ROUTE)
     }
 }

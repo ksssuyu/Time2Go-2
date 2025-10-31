@@ -24,16 +24,35 @@
                 android:layout_height="match_parent"
                 app:layout_collapseMode="parallax" />
 
-            <ImageView
-                android:id="@+id/btn_back"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Назад"
-                android:padding="12dp"
-                android:src="@drawable/ic_arrow_back"
-                app:tint="#FFFFFF" />
+                app:layout_collapseMode="pin">
+
+                <ImageView
+                    android:id="@+id/btn_back"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="start"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Назад"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="#FFFFFF" />
+
+                <ImageView
+                    android:id="@+id/btn_edit"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="end"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Редактировать"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_edit"
+                    android:visibility="gone"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

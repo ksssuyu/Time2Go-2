@@ -1,5 +1,6 @@
 package com.example.timego.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +15,7 @@ import com.example.timego.models.Route
 import com.example.timego.repository.FirebaseRepository
 import com.example.timego.utils.ImageLoader
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -21,6 +23,7 @@ class MainScreenActivity : AppCompatActivity() {
 
     private val repository = FirebaseRepository()
     private lateinit var auth: FirebaseAuth
+    private lateinit var btnSearch: MaterialButton
 
     companion object {
         private const val TAG = "MainScreenActivity"
@@ -235,6 +238,7 @@ class MainScreenActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun loadUserName() {
         lifecycleScope.launch {
             try {
@@ -252,6 +256,11 @@ class MainScreenActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        btnSearch.setOnClickListener {
+            val intent = Intent(this, SearchActivity::class.java)
+            startActivity(intent)
+        }
+
         findViewById<TextView>(R.id.user_routes_title).setOnClickListener {
             val intent = Intent(this, AllUserRoutesActivity::class.java)
             startActivity(intent)
@@ -289,6 +298,7 @@ class MainScreenActivity : AppCompatActivity() {
         setContentView(R.layout.main_screen)
 
         auth = FirebaseAuth.getInstance()
+        btnSearch = findViewById(R.id.btn_search)
 
         setupBottomNavigation()
         setupClickListeners()

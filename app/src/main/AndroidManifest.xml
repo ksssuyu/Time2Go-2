@@ -96,6 +96,26 @@
             android:exported="false"
             android:theme="@style/theme.Time2Go" />
 
+        <activity
+            android:name=".activities.SearchActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
+
+        <activity
+            android:name=".activities.EditRouteActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
+
+        <activity
+            android:name=".activities.MyRoutesActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
+
+        <activity
+            android:name=".activities.MyReviewsActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
+
     </application>
 
 </manifest>

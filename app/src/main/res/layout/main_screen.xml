@@ -48,6 +48,25 @@
                 android:textSize="24sp"
                 android:lineSpacingExtra="4dp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_search"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="#FFFFFF"
+                android:fontFamily="sans-serif"
+                android:text="Поиск маршрутов..."
+                android:textAllCaps="false"
+                android:textColor="#909090"
+                android:textSize="16sp"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_search"
+                app:iconGravity="start"
+                app:iconTint="#909090"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp" />
+
             <TextView
                 android:id="@+id/popular_routes_title"
                 android:layout_width="match_parent"

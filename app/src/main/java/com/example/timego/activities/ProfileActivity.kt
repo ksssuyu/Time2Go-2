@@ -3,12 +3,13 @@ package com.example.timego.activities
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import com.example.timego.MainActivity
 import com.example.timego.R
@@ -25,10 +26,12 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var ivAvatar: ImageView
     private lateinit var tvUserName: TextView
     private lateinit var tvUserEmail: TextView
-    private lateinit var cardMyRoutes: CardView
-    private lateinit var cardFavorites: CardView
-    private lateinit var cardSettings: CardView
-    private lateinit var cardLogout: CardView
+
+    private lateinit var tabMyRoutes: LinearLayout
+    private lateinit var tabReviews: LinearLayout
+    private lateinit var tabFavorites: LinearLayout
+    private lateinit var btnLogout: LinearLayout
+    private lateinit var btnDeleteAccount: LinearLayout
 
     companion object {
         private const val TAG = "ProfileActivity"
@@ -48,28 +51,35 @@ class ProfileActivity : AppCompatActivity() {
         ivAvatar = findViewById(R.id.iv_user_avatar)
         tvUserName = findViewById(R.id.tv_user_name)
         tvUserEmail = findViewById(R.id.tv_user_email)
-        cardMyRoutes = findViewById(R.id.card_my_routes)
-        cardFavorites = findViewById(R.id.card_favorites)
-        cardSettings = findViewById(R.id.card_settings)
-        cardLogout = findViewById(R.id.card_logout)
+
+        tabMyRoutes = findViewById(R.id.tab_my_routes)
+        tabReviews = findViewById(R.id.tab_reviews)
+        tabFavorites = findViewById(R.id.tab_favorites)
+        btnLogout = findViewById(R.id.btn_logout)
+        btnDeleteAccount = findViewById(R.id.btn_delete_account)
+
         bottomNavigation = findViewById(R.id.bottom_navigation)
     }
 
     private fun setupClickListeners() {
-        cardMyRoutes.setOnClickListener {
-            openAllUserRoutes()
+        tabMyRoutes.setOnClickListener {
+            openMyRoutes()
         }
 
-        cardFavorites.setOnClickListener {
+        tabReviews.setOnClickListener {
+            openMyReviews()
+        }
+
+        tabFavorites.setOnClickListener {
             openFavorites()
         }
 
-        cardSettings.setOnClickListener {
-            Toast.makeText(this, "Настройки в разработке", Toast.LENGTH_SHORT).show()
+        btnLogout.setOnClickListener {
+            showLogoutDialog()
         }
 
-        cardLogout.setOnClickListener {
-            showLogoutDialog()
+        btnDeleteAccount.setOnClickListener {
+            showDeleteAccountDialog()
         }
     }
 
@@ -101,8 +111,13 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    private fun openAllUserRoutes() {
-        val intent = Intent(this, AllUserRoutesActivity::class.java)
+    private fun openMyRoutes() {
+        val intent = Intent(this, MyRoutesActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun openMyReviews() {
+        val intent = Intent(this, MyReviewsActivity::class.java)
         startActivity(intent)
     }
 
@@ -122,6 +137,17 @@ class ProfileActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showDeleteAccountDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Удалить аккаунт?")
+            .setMessage("Это действие нельзя отменить. Все ваши данные будут удалены навсегда.")
+            .setPositiveButton("Удалить") { _, _ ->
+                deleteAccount()
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
     private fun logout() {
         repository.signOut()
 
@@ -134,6 +160,47 @@ class ProfileActivity : AppCompatActivity() {
         finish()
 
         Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun deleteAccount() {
+        val user = repository.getCurrentUser()
+        if (user == null) {
+            Toast.makeText(this, "Ошибка: пользователь не найден", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                repository.getMyRoutes(user.uid, 1000).onSuccess { routes ->
+                    routes.forEach { route ->
+                        repository.deleteRoute(route.routeId)
+                    }
+                }
+
+                user.delete().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                        prefs.edit().clear().apply()
+
+                        val intent = Intent(this@ProfileActivity, MainActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+
+                        Toast.makeText(this@ProfileActivity, "Аккаунт удален", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(
+                            this@ProfileActivity,
+                            "Ошибка удаления аккаунта",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Ошибка удаления аккаунта", e)
+                Toast.makeText(applicationContext, "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setupBottomNavigation() {

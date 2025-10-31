@@ -1,6 +1,7 @@
 package com.example.timego.repository
 
 import android.util.Log
+import com.example.timego.models.Review
 import com.example.timego.models.Route
 import com.example.timego.models.User
 import com.google.firebase.auth.FirebaseAuth
@@ -9,6 +10,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+
 
 class FirebaseRepository {
 
@@ -594,4 +596,111 @@ class FirebaseRepository {
             Result.failure(e)
         }
     }
+
+    suspend fun updateRoute(routeId: String, updates: HashMap<String, Any>): Result<Unit> {
+        return try {
+            firestore.collection("routes")
+                .document(routeId)
+                .update(updates)
+                .await()
+
+            Log.d(TAG, "Маршрут успешно обновлен: $routeId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка обновления маршрута", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteRoute(routeId: String): Result<Unit> {
+        return try {
+            firestore.collection("routes")
+                .document(routeId)
+                .delete()
+                .await()
+
+            val reviewsSnapshot = firestore.collection("reviews")
+                .whereEqualTo("routeId", routeId)
+                .get()
+                .await()
+
+            reviewsSnapshot.documents.forEach { doc ->
+                doc.reference.delete().await()
+            }
+
+            val favoritesSnapshot = firestore.collection("favorites")
+                .whereEqualTo("routeId", routeId)
+                .get()
+                .await()
+
+            favoritesSnapshot.documents.forEach { doc ->
+                doc.reference.delete().await()
+            }
+
+            Log.d(TAG, "Маршрут успешно удален: $routeId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка удаления маршрута", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getMyRoutes(userId: String, limit: Int = 50): Result<List<Route>> {
+        return try {
+            Log.d(TAG, "Запрос маршрутов пользователя: $userId")
+
+            val snapshot = firestore.collection("routes")
+                .whereEqualTo("createdBy", userId)
+                .whereEqualTo("isPublished", true)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(limit.toLong())
+                .get()
+                .await()
+
+            val routes = snapshot.documents.mapNotNull { doc ->
+                try {
+                    doc.toObject(Route::class.java)?.copy(routeId = doc.id)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Ошибка парсинга маршрута ${doc.id}", e)
+                    null
+                }
+            }
+
+            Log.d(TAG, "Загружено моих маршрутов: ${routes.size}")
+            Result.success(routes)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки моих маршрутов", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getMyReviews(userId: String, limit: Int = 50): Result<List<Review>> {
+        return try {
+            Log.d(TAG, "Запрос отзывов пользователя: $userId")
+
+            val snapshot = firestore.collection("reviews")
+                .whereEqualTo("userId", userId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(limit.toLong())
+                .get()
+                .await()
+
+            val reviews = snapshot.documents.mapNotNull { doc ->
+                try {
+                    doc.toObject(Review::class.java)?.copy(reviewId = doc.id)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Ошибка парсинга отзыва ${doc.id}", e)
+                    null
+                }
+            }
+
+            Log.d(TAG, "Загружено моих отзывов: ${reviews.size}")
+            Result.success(reviews)
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки моих отзывов", e)
+            Result.failure(e)
+        }
+    }
+
 }
