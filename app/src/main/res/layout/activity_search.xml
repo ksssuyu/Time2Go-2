@@ -99,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="Категория"
+                    android:text="Категории (можно выбрать несколько)"
                     android:textColor="#B8B5B2"
                     android:textSize="16sp" />
 
@@ -108,55 +108,62 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:singleSelection="true">
+                    app:singleSelection="false"
+                    app:selectionRequired="false">
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_nature"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="nature"
                         android:text="Природа"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:checkable="true" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_history"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="history"
                         android:text="История"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:checkable="true" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_active"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="active"
                         android:text="Активный отдых"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:checkable="true" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_gastronomy"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="gastronomy"
                         android:text="Гастрономия"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:checkable="true" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_family"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="family"
                         android:text="Семейный"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:checkable="true" />
 
                     <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_ethnic"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="ethnic"
                         android:text="Этнография"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:checkable="true" />
                 </com.google.android.material.chip.ChipGroup>
 
                 <TextView
@@ -274,9 +281,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="sans-serif"
-            android:text="Попробуйте изменить запрос"
+            android:text="Попробуйте изменить запрос или фильтры"
             android:textColor="#909090"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textAlignment="center"
+            android:paddingHorizontal="32dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

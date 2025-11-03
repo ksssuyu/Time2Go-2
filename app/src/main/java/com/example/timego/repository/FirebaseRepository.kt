@@ -225,6 +225,38 @@ class FirebaseRepository {
         }
     }
 
+    suspend fun getAllRoutes(): Result<List<Route>> {
+        return try {
+            Log.d(TAG, "Запрос ВСЕХ маршрутов без ограничений")
+
+            val snapshot = firestore.collection("routes")
+                .whereEqualTo("isPublished", true)
+                .get()
+                .await()
+
+            Log.d(TAG, "Получено документов из Firebase: ${snapshot.documents.size}")
+
+            val routes = snapshot.documents.mapNotNull { doc ->
+                try {
+                    val route = doc.toObject(Route::class.java)?.copy(routeId = doc.id)
+                    if (route != null) {
+                        Log.d(TAG, "Маршрут загружен: ${route.title}, тип: ${route.type}")
+                    }
+                    route
+                } catch (e: Exception) {
+                    Log.e(TAG, "Ошибка парсинга маршрута ${doc.id}", e)
+                    null
+                }
+            }
+
+            Log.d(TAG, "Успешно загружено всех маршрутов: ${routes.size}")
+            Result.success(routes)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки всех маршрутов", e)
+            Result.failure(e)
+        }
+    }
+
     suspend fun getRoutesByCategory(category: String, limit: Int = 20): Result<List<Route>> {
         return try {
             Log.d(TAG, "Запрос маршрутов по категории: $category")
@@ -702,5 +734,4 @@ class FirebaseRepository {
             Result.failure(e)
         }
     }
-
 }

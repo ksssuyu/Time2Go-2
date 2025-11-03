@@ -2,7 +2,7 @@
     <string name="app_name">My Application T2G</string>
     <string name="skip">Пропустить</string>
     <string name="main_text1">Лучшие маршруты рядом - под любой бюджет и настроение</string>
-    <string name="main_text2">Используй готовые маршруты или планируй их самостоятельно</string>
+    <string name="main_text2">Планируй свой маршрут самостоятельно или используй готовые маршруты</string>
     <string name="main_text3">Расскажи о своих пожеланиях, и ассистент подберет для тебя идею</string>
     <string name="main_text4">Создайте аккаунт, чтобы получать персональные рекомендации и сохранять любимые маршруты</string>
     <string name="hint_email">Email</string>
