@@ -1,8 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.theme.Time2Go" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">#BCD6C2D9</item>
-        <item name="colorPrimaryVariant">#BCB8A3BF</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryVariant">#BCAD96B3</item>
+        <item name="colorOnPrimary">@color/purple_500</item>
         <item name="colorSecondary">@color/bottom_nav_color</item>
         <item name="colorSecondaryVariant">@color/bottom_nav_color</item>
         <item name="colorOnSecondary">@color/black</item>

@@ -9,7 +9,7 @@
         android:id="@+id/header_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="#F5EFE6"
+        app:cardBackgroundColor="#F2EFE5"
         app:cardCornerRadius="0dp"
         app:cardElevation="4dp"
         app:layout_constraintTop_toTopOf="parent">
@@ -34,7 +34,7 @@
                     android:contentDescription="Назад"
                     android:padding="8dp"
                     android:src="@drawable/ic_arrow_back"
-                    app:tint="#B8B5B2" />
+                    app:tint="#6B655F" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -43,7 +43,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-medium"
                     android:text="Поиск маршрутов"
-                    android:textColor="#B8B5B2"
+                    android:textColor="#6B655F"
                     android:textSize="20sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -53,13 +53,13 @@
                     android:layout_height="40dp"
                     android:text="Фильтры"
                     android:textAllCaps="false"
-                    android:textColor="#6B4E71"
+                    android:textColor="#6B655F"
                     android:textSize="14sp"
                     app:cornerRadius="8dp"
                     app:icon="@drawable/ic_filter"
                     app:iconSize="18dp"
-                    app:iconTint="#6B4E71"
-                    app:strokeColor="#6B4E71"
+                    app:iconTint="#6B655F"
+                    app:strokeColor="#6B655F"
                     app:strokeWidth="1dp" />
             </LinearLayout>
 
@@ -80,7 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:cardBackgroundColor="#FFFFFF"
+        app:cardBackgroundColor="#FDF8EF"
         app:cardElevation="4dp"
         app:layout_constraintTop_toBottomOf="@id/header_card">
 
@@ -98,10 +98,10 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Категории (можно выбрать несколько)"
-                    android:textColor="#B8B5B2"
-                    android:textSize="16sp" />
+                    android:fontFamily="sans-serif-light"
+                    android:text="Категории"
+                    android:textColor="#6B655F"
+                    android:textSize="17sp" />
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chip_group_categories"
@@ -170,10 +170,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:fontFamily="sans-serif-medium"
+                    android:fontFamily="sans-serif-light"
                     android:text="Сложность"
-                    android:textColor="#B8B5B2"
-                    android:textSize="16sp" />
+                    android:textColor="#6B655F"
+                    android:textSize="17sp" />
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chip_group_difficulty"
@@ -183,28 +183,28 @@
                     app:singleSelection="true">
 
                     <com.google.android.material.chip.Chip
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="easy"
-                        android:text="Легкий"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:fontFamily="sans-serif-light"
+                        android:text="Легкий" />
 
                     <com.google.android.material.chip.Chip
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:tag="medium"
-                        android:text="Средний"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:fontFamily="sans-serif-light"
+                        android:text="Средний" />
 
                     <com.google.android.material.chip.Chip
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-light"
                         android:tag="hard"
-                        android:text="Сложный"
-                        app:chipBackgroundColor="@color/chip_background_selector"
-                        app:chipStrokeWidth="1dp" />
+                        android:text="Сложный" />
                 </com.google.android.material.chip.ChipGroup>
 
                 <LinearLayout
@@ -220,20 +220,25 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
+                        android:backgroundTint="#F5EFE6"
                         android:text="Очистить"
                         android:textAllCaps="false"
-                        android:textColor="#909090"
-                        app:strokeColor="#E0E0E0" />
+                        android:textColor="#6B655F"
+                        app:strokeColor="#998C82"
+                        app:strokeWidth="0.7dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_apply_filters"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:backgroundTint="#FDEBE1"
+                        android:backgroundTint="#F5EFE6"
                         android:text="Применить"
                         android:textAllCaps="false"
-                        android:textColor="#6B4E71" />
+                        android:textColor="#6B655F"
+                        app:strokeColor="#998C82"
+                        app:strokeWidth="0.7dp" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
