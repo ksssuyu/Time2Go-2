@@ -225,7 +225,8 @@ class MainScreenActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_messages -> {
-                    Toast.makeText(this, "Чат с ассистентом в разработке", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, AssistantActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.nav_favorites -> {

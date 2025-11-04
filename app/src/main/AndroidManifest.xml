@@ -116,6 +116,12 @@
             android:exported="false"
             android:theme="@style/theme.Time2Go" />
 
+        <activity
+            android:name=".activities.AssistantActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

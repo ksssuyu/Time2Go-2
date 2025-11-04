@@ -734,4 +734,162 @@ class FirebaseRepository {
             Result.failure(e)
         }
     }
+    suspend fun getOrCreateConversation(userId: String): Result<String> {
+        return try {
+// Ищем активный диалог пользователя
+            val snapshot = firestore.collection("conversations")
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("isActive", true)
+            .limit(1)
+                .get()
+                .await()
+
+            if (!snapshot.isEmpty) {
+                // Возвращаем существующий диалог
+                val conversationId = snapshot.documents[0].id
+                Log.d(TAG, "Найден существующий диалог: $conversationId")
+                Result.success(conversationId)
+            } else {
+                // Создаем новый диалог
+                val conversationData = hashMapOf(
+                    "userId" to userId,
+                    "createdAt" to com.google.firebase.Timestamp.now(),
+                    "updatedAt" to com.google.firebase.Timestamp.now(),
+                    "title" to "Новый диалог",
+                    "isActive" to true,
+                    "context" to hashMapOf<String, Any>()
+                )
+
+                val docRef = firestore.collection("conversations")
+                    .add(conversationData)
+                    .await()
+
+                Log.d(TAG, "Создан новый диалог: ${docRef.id}")
+                Result.success(docRef.id)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка получения/создания диалога", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getConversationMessages(conversationId: String, limit: Int = 50): Result<List<com.example.timego.models.Message>> {
+        return try {
+            val snapshot = firestore.collection("messages")
+            .whereEqualTo("conversationId", conversationId)
+            .orderBy("createdAt", Query.Direction.ASCENDING)
+            .limit(limit.toLong())
+                .get()
+                .await()
+
+            val messages = mutableListOf<com.example.timego.models.Message>()
+
+            for (doc in snapshot.documents) {
+                val message = doc.toObject(com.example.timego.models.Message::class.java)?.copy(
+                    messageId = doc.id
+                )
+
+                if (message != null) {
+                    // Если есть вложенные маршруты, загружаем их
+                    val attachments = message.attachments
+                    val routes = mutableListOf<com.example.timego.models.Route>()
+
+                    for (attachment in attachments) {
+                        if (attachment["type"] == "route") {
+                            val routeId = attachment["routeId"] as? String
+                            if (routeId != null) {
+                                getRouteById(routeId).getOrNull()?.let { routes.add(it) }
+                            }
+                        }
+                    }
+
+                    messages.add(message.copy(routes = routes))
+                }
+            }
+
+            Log.d(TAG, "Загружено сообщений: ${messages.size}")
+            Result.success(messages)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка загрузки сообщений", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun sendMessage(
+        conversationId: String,
+        userId: String?,
+        text: String,
+        type: String
+    ): Result<String> {
+        return try {
+            val messageData = hashMapOf(
+                "conversationId" to conversationId,
+                "userId" to userId,
+                "text" to text,
+                "type" to type,
+                "createdAt" to com.google.firebase.Timestamp.now(),
+                "isRead" to false,
+                "attachments" to emptyList<Map<String, Any>>()
+            )
+
+            val docRef = firestore.collection("messages")
+                .add(messageData)
+                .await()
+
+            // Обновляем время последнего сообщения в диалоге
+            firestore.collection("conversations")
+                .document(conversationId)
+                .update("updatedAt", com.google.firebase.Timestamp.now())
+                .await()
+
+            Log.d(TAG, "Сообщение отправлено: ${docRef.id}")
+            Result.success(docRef.id)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка отправки сообщения", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun sendMessageWithRoutes(
+        conversationId: String,
+        userId: String?,
+        text: String,
+        type: String,
+        routeIds: List<String>
+    ): Result<String> {
+        return try {
+            val attachments = routeIds.map { routeId ->
+                hashMapOf(
+                    "type" to "route",
+                    "routeId" to routeId
+                )
+            }
+
+            val messageData = hashMapOf(
+                "conversationId" to conversationId,
+                "userId" to userId,
+                "text" to text,
+                "type" to type,
+                "createdAt" to com.google.firebase.Timestamp.now(),
+                "isRead" to false,
+                "attachments" to attachments
+            )
+
+            val docRef = firestore.collection("messages")
+                .add(messageData)
+                .await()
+
+            // Обновляем время последнего сообщения в диалоге
+            firestore.collection("conversations")
+                .document(conversationId)
+                .update("updatedAt", com.google.firebase.Timestamp.now())
+                .await()
+
+            Log.d(TAG, "Сообщение с маршрутами отправлено: ${docRef.id}")
+            Result.success(docRef.id)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка отправки сообщения с маршрутами", e)
+            Result.failure(e)
+        }
+    }
 }
