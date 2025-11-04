@@ -32,7 +32,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
-                android:textStyle="bold"
                 android:text="@string/greeting_text"
                 android:textColor="#998C82"
                 android:textSize="33sp"
@@ -54,11 +53,11 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:backgroundTint="#FDF8EF"
                 android:fontFamily="sans-serif"
                 android:text=" Поиск маршрутов..."
-                android:gravity=""
+                android:gravity="center_vertical"
                 android:textAllCaps="false"
                 android:textColor="#909090"
                 android:textSize="16sp"
@@ -67,16 +66,16 @@
                 app:iconGravity="start"
                 app:iconTint="#909090"
                 app:strokeColor="#998C82"
-                app:strokeWidth="1dp" />
+                app:strokeWidth="0.5dp" />
 
             <TextView
                 android:id="@+id/popular_routes_title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginTop="25dp"
                 android:background="@drawable/rounded_bg"
                 android:gravity="center"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="sans-serif-light"
                 android:paddingStart="16dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="16dp"
@@ -96,8 +95,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp">
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp">
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/popular_route_card_1"
@@ -259,7 +258,7 @@
                 android:layout_marginTop="32dp"
                 android:background="@drawable/rounded_bg"
                 android:gravity="center"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="sans-serif-light"
                 android:paddingStart="16dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="16dp"
@@ -270,7 +269,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:drawableEnd="@drawable/ic_arrow_forward"
-                android:drawablePadding="4dp"
+                android:drawablePadding="0dp"
                 android:drawableTint="#6B655F" />
 
             <HorizontalScrollView
@@ -284,8 +283,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp">
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp">
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/user_route_card_1"
@@ -545,7 +544,7 @@
                 android:layout_marginTop="32dp"
                 android:background="@drawable/rounded_bg"
                 android:gravity="center"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="sans-serif-light"
                 android:paddingStart="16dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="16dp"
@@ -558,8 +557,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
                 android:columnCount="2"
                 android:rowCount="3">
 
@@ -571,7 +570,7 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
                     app:cardCornerRadius="16dp"
-                    app:cardBackgroundColor="#5FDBC9DB"
+                    app:cardBackgroundColor="#F3EDE5"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
@@ -582,7 +581,7 @@
                         android:gravity="center"
                         android:padding="16dp"
                         android:text="@string/category_nature"
-                        android:textColor="#9E9E9E"
+                        android:textColor="#6B655F"
                         android:textSize="18sp"
                         android:lineSpacingExtra="2dp" />
                 </androidx.cardview.widget.CardView>
@@ -594,7 +593,7 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#5FDBC9DB"
+                    app:cardBackgroundColor="#F3EDE5"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
@@ -606,7 +605,7 @@
                         android:gravity="center"
                         android:padding="16dp"
                         android:text="@string/category_history"
-                        android:textColor="#9E9E9E"
+                        android:textColor="#6B655F"
                         android:textSize="18sp"
                         android:lineSpacingExtra="2dp" />
                 </androidx.cardview.widget.CardView>
@@ -618,7 +617,7 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#5FDBC9DB"
+                    app:cardBackgroundColor="#F3EDE5"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
@@ -630,7 +629,7 @@
                         android:gravity="center"
                         android:padding="16dp"
                         android:text="@string/category_active"
-                        android:textColor="#9E9E9E"
+                        android:textColor="#6B655F"
                         android:textSize="18sp"
                         android:lineSpacingExtra="2dp" />
                 </androidx.cardview.widget.CardView>
@@ -642,7 +641,7 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#5FDBC9DB"
+                    app:cardBackgroundColor="#F3EDE5"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
@@ -654,7 +653,7 @@
                         android:gravity="center"
                         android:padding="16dp"
                         android:text="@string/category_gastronomy"
-                        android:textColor="#9E9E9E"
+                        android:textColor="#6B655F"
                         android:textSize="18sp"
                         android:lineSpacingExtra="2dp" />
                 </androidx.cardview.widget.CardView>
@@ -666,7 +665,7 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#5FDBC9DB"
+                    app:cardBackgroundColor="#F3EDE5"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
@@ -678,7 +677,7 @@
                         android:gravity="center"
                         android:padding="16dp"
                         android:text="@string/category_family"
-                        android:textColor="#9E9E9E"
+                        android:textColor="#6B655F"
                         android:textSize="18sp"
                         android:lineSpacingExtra="2dp" />
                 </androidx.cardview.widget.CardView>
@@ -690,7 +689,7 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#5FDBC9DB"
+                    app:cardBackgroundColor="#F3EDE5"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
@@ -702,7 +701,7 @@
                         android:gravity="center"
                         android:padding="16dp"
                         android:text="@string/category_ethnic"
-                        android:textColor="#9E9E9E"
+                        android:textColor="#6B655F"
                         android:textSize="18sp"
                         android:lineSpacingExtra="2dp" />
                 </androidx.cardview.widget.CardView>

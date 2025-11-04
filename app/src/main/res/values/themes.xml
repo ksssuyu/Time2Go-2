@@ -1,12 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.theme.Time2Go" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">#6B4E71</item>
-        <item name="colorPrimaryVariant">#5F4064</item>
+        <item name="colorPrimary">#BCD6C2D9</item>
+        <item name="colorPrimaryVariant">#BCB8A3BF</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/bottom_nav_color</item>
         <item name="colorSecondaryVariant">@color/bottom_nav_color</item>
         <item name="colorOnSecondary">@color/black</item>
-        <item name="android:statusBarColor">#47314E</item>
+        <item name="android:statusBarColor">#FDF8EF</item>
     </style>
 
     <style name="theme.Time2Go" parent="Base.theme.Time2Go" />
