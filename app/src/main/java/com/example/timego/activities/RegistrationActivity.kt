@@ -88,6 +88,7 @@ class RegistrationActivity : AppCompatActivity() {
         emailInputLayout.error = null
         phoneInputLayout.error = null
         passwordInputLayout.error = null
+        usernameInputLayout.error = null
     }
 
     private fun switchToPhoneMode() {
@@ -99,6 +100,7 @@ class RegistrationActivity : AppCompatActivity() {
         emailInputLayout.error = null
         phoneInputLayout.error = null
         passwordInputLayout.error = null
+        usernameInputLayout.error = null
     }
 
     private fun handleLogin() {
@@ -121,7 +123,7 @@ class RegistrationActivity : AppCompatActivity() {
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        if (!validateEmailInput(email, password)) return
+        if (!validateEmailInput(email, password, isLogin = true)) return
 
         btnLogin.isEnabled = false
 
@@ -143,7 +145,7 @@ class RegistrationActivity : AppCompatActivity() {
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        if (!validateUsername(username) || !validateEmailInput(email, password)) return
+        if (!validateUsername(username) || !validateEmailInput(email, password, isLogin = false)) return
 
         btnRegistration.isEnabled = false
 
@@ -164,7 +166,7 @@ class RegistrationActivity : AppCompatActivity() {
         val phone = phoneInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        if (!validatePhoneInput(phone, password)) return
+        if (!validatePhoneInput(phone, password, isLogin = true)) return
 
         btnLogin.isEnabled = false
         val formattedPhone = "+7$phone"
@@ -187,13 +189,13 @@ class RegistrationActivity : AppCompatActivity() {
         val phone = phoneInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        if (!validateUsername(username) || !validatePhoneInput(phone, password)) return
+        if (!validateUsername(username) || !validatePhoneInput(phone, password, isLogin = false)) return
 
         btnRegistration.isEnabled = false
         val formattedPhone = "+7$phone"
 
         lifecycleScope.launch {
-            val result = repository.signUpWithPhone(formattedPhone, password)
+            val result = repository.signUpWithPhone(formattedPhone, password, username)
 
             btnRegistration.isEnabled = true
 
@@ -211,13 +213,24 @@ class RegistrationActivity : AppCompatActivity() {
 
     private fun validateUsername(username: String): Boolean {
         usernameInputLayout.error = null
-        return if (username.isEmpty()) {
-            usernameInputLayout.error = "Введите имя пользователя"
-            false
-        } else true
+        return when {
+            username.isEmpty() -> {
+                usernameInputLayout.error = "Введите имя пользователя"
+                false
+            }
+            username.length < 3 -> {
+                usernameInputLayout.error = "Минимум 3 символа"
+                false
+            }
+            username.length > 30 -> {
+                usernameInputLayout.error = "Максимум 30 символов"
+                false
+            }
+            else -> true
+        }
     }
 
-    private fun validateEmailInput(email: String, password: String): Boolean {
+    private fun validateEmailInput(email: String, password: String, isLogin: Boolean): Boolean {
         emailInputLayout.error = null
         passwordInputLayout.error = null
         var valid = true
@@ -226,14 +239,14 @@ class RegistrationActivity : AppCompatActivity() {
             emailInputLayout.error = "Введите email"
             valid = false
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailInputLayout.error = "Некорректный email"
+            emailInputLayout.error = "Некорректный формат email"
             valid = false
         }
 
         if (password.isEmpty()) {
             passwordInputLayout.error = "Введите пароль"
             valid = false
-        } else if (password.length < 6) {
+        } else if (!isLogin && password.length < 6) {
             passwordInputLayout.error = "Минимум 6 символов"
             valid = false
         }
@@ -241,7 +254,7 @@ class RegistrationActivity : AppCompatActivity() {
         return valid
     }
 
-    private fun validatePhoneInput(phone: String, password: String): Boolean {
+    private fun validatePhoneInput(phone: String, password: String, isLogin: Boolean): Boolean {
         phoneInputLayout.error = null
         passwordInputLayout.error = null
         var valid = true
@@ -257,7 +270,7 @@ class RegistrationActivity : AppCompatActivity() {
         if (password.isEmpty()) {
             passwordInputLayout.error = "Введите пароль"
             valid = false
-        } else if (password.length < 6) {
+        } else if (!isLogin && password.length < 6) {
             passwordInputLayout.error = "Минимум 6 символов"
             valid = false
         }
@@ -271,18 +284,11 @@ class RegistrationActivity : AppCompatActivity() {
             message.contains("INVALID_LOGIN_CREDENTIALS", true) -> "Неверные данные для входа."
             message.contains("USER_NOT_FOUND", true) -> "Пользователь не найден."
             message.contains("INVALID_PASSWORD", true) -> "Неверный пароль."
-            message.contains("EMAIL_EXISTS", true) || message.contains(
-                "PHONE_EXISTS",
-                true
-            ) -> "Этот email или телефон уже зарегистрирован."
-
+            message.contains("EMAIL_EXISTS", true) || message.contains("PHONE_EXISTS", true) ->
+                "Этот email или телефон уже зарегистрирован."
             message.contains("WEAK_PASSWORD", true) -> "Слабый пароль."
             message.contains("INVALID_EMAIL", true) -> "Некорректный email."
-            message.contains(
-                "TOO_MANY_ATTEMPTS",
-                true
-            ) -> "Слишком много попыток. Попробуйте позже."
-
+            message.contains("TOO_MANY_ATTEMPTS", true) -> "Слишком много попыток. Попробуйте позже."
             message.contains("NETWORK_ERROR", true) -> "Проблема с интернетом."
             else -> "Произошла ошибка. Попробуйте еще раз."
         }

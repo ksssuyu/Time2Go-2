@@ -11,7 +11,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 
-
 class FirebaseRepository {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -20,7 +19,6 @@ class FirebaseRepository {
     companion object {
         private const val TAG = "FirebaseRepository"
     }
-
 
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
@@ -39,7 +37,7 @@ class FirebaseRepository {
                 .set(userData)
                 .await()
 
-            Log.d(TAG, "Пользователь успешно зарегистрирован: $email")
+            Log.d(TAG, "Пользователь успешно зарегистрирован: $email с ником: $name")
             Result.success(user)
         } catch (e: Exception) {
             Log.e(TAG, "Ошибка регистрации", e)
@@ -72,7 +70,7 @@ class FirebaseRepository {
         }
     }
 
-    suspend fun signUpWithPhone(phone: String, password: String): Result<FirebaseUser> {
+    suspend fun signUpWithPhone(phone: String, password: String, name: String): Result<FirebaseUser> {
         return try {
             val phoneEmail = "${phone.replace("+", "")}@phone.user"
             val result = auth.createUserWithEmailAndPassword(phoneEmail, password).await()
@@ -80,7 +78,7 @@ class FirebaseRepository {
 
             val userData = User(
                 userId = user.uid,
-                name = phone,
+                name = name,
                 email = phoneEmail
             )
             firestore.collection("users")
@@ -88,7 +86,7 @@ class FirebaseRepository {
                 .set(userData)
                 .await()
 
-            Log.d(TAG, "Пользователь зарегистрирован по телефону: $phone")
+            Log.d(TAG, "Пользователь зарегистрирован по телефону: $phone с ником: $name")
             Result.success(user)
         } catch (e: Exception) {
             Log.e(TAG, "Ошибка регистрации по телефону", e)
@@ -137,7 +135,6 @@ class FirebaseRepository {
         auth.signOut()
         Log.d(TAG, "Пользователь вышел из системы")
     }
-
 
     suspend fun getUserData(userId: String): Result<User> {
         return try {
@@ -444,7 +441,7 @@ class FirebaseRepository {
         }
     }
 
-    suspend fun getRouteReviews(routeId: String, limit: Int = 20): Result<List<com.example.timego.models.Review>> {
+    suspend fun getRouteReviews(routeId: String, limit: Int = 20): Result<List<Review>> {
         return try {
             Log.d(TAG, "Запрос отзывов для маршрута: $routeId")
 
@@ -457,7 +454,7 @@ class FirebaseRepository {
 
             val reviews = snapshot.documents.mapNotNull { doc ->
                 try {
-                    doc.toObject(com.example.timego.models.Review::class.java)?.copy(reviewId = doc.id)
+                    doc.toObject(Review::class.java)?.copy(reviewId = doc.id)
                 } catch (e: Exception) {
                     Log.e(TAG, "Ошибка парсинга отзыва ${doc.id}", e)
                     null
@@ -507,8 +504,32 @@ class FirebaseRepository {
         }
     }
 
+    suspend fun updateReview(reviewId: String, updates: HashMap<String, Any>): Result<Unit> {
+        return try {
+            firestore.collection("reviews")
+                .document(reviewId)
+                .update(updates)
+                .await()
+
+            Log.d(TAG, "Отзыв успешно обновлен: $reviewId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка обновления отзыва", e)
+            Result.failure(e)
+        }
+    }
+
     suspend fun deleteReview(reviewId: String, routeId: String): Result<Unit> {
         return try {
+            // Удаляем все лайки этого отзыва
+            val likesSnapshot = firestore.collection("review_likes")
+                .whereEqualTo("reviewId", reviewId)
+                .get()
+                .await()
+
+            likesSnapshot.documents.forEach { it.reference.delete().await() }
+
+            // Удаляем сам отзыв
             firestore.collection("reviews")
                 .document(reviewId)
                 .delete()
@@ -524,7 +545,6 @@ class FirebaseRepository {
         }
     }
 
-
     suspend fun createRoute(routeData: HashMap<String, Any>): Result<Unit> {
         return try {
             firestore.collection("routes")
@@ -538,6 +558,7 @@ class FirebaseRepository {
             Result.failure(e)
         }
     }
+
     suspend fun toggleReviewLike(userId: String, reviewId: String): Result<Boolean> {
         return try {
             Log.d(TAG, "Переключение лайка отзыва: userId=$userId, reviewId=$reviewId")
@@ -550,6 +571,7 @@ class FirebaseRepository {
                 .await()
 
             if (likeSnapshot.isEmpty) {
+                // Добавляем лайк
                 val likeData = hashMapOf(
                     "userId" to userId,
                     "reviewId" to reviewId,
@@ -568,6 +590,7 @@ class FirebaseRepository {
                 Log.d(TAG, "Лайк добавлен к отзыву: $reviewId")
                 Result.success(true)
             } else {
+                // Удаляем лайк
                 likeSnapshot.documents.forEach { it.reference.delete().await() }
 
                 firestore.collection("reviews")
@@ -600,7 +623,7 @@ class FirebaseRepository {
         }
     }
 
-    suspend fun getTopRouteReviews(routeId: String, limit: Int = 3): Result<List<com.example.timego.models.Review>> {
+    suspend fun getTopRouteReviews(routeId: String, limit: Int = 3): Result<List<Review>> {
         return try {
             Log.d(TAG, "Запрос топ отзывов для маршрута: $routeId")
 
@@ -614,7 +637,7 @@ class FirebaseRepository {
 
             val reviews = snapshot.documents.mapNotNull { doc ->
                 try {
-                    doc.toObject(com.example.timego.models.Review::class.java)?.copy(reviewId = doc.id)
+                    doc.toObject(Review::class.java)?.copy(reviewId = doc.id)
                 } catch (e: Exception) {
                     Log.e(TAG, "Ошибка парсинга отзыва ${doc.id}", e)
                     null
@@ -734,23 +757,21 @@ class FirebaseRepository {
             Result.failure(e)
         }
     }
+
     suspend fun getOrCreateConversation(userId: String): Result<String> {
         return try {
-// Ищем активный диалог пользователя
             val snapshot = firestore.collection("conversations")
-            .whereEqualTo("userId", userId)
-            .whereEqualTo("isActive", true)
-            .limit(1)
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("isActive", true)
+                .limit(1)
                 .get()
                 .await()
 
             if (!snapshot.isEmpty) {
-                // Возвращаем существующий диалог
                 val conversationId = snapshot.documents[0].id
                 Log.d(TAG, "Найден существующий диалог: $conversationId")
                 Result.success(conversationId)
             } else {
-                // Создаем новый диалог
                 val conversationData = hashMapOf(
                     "userId" to userId,
                     "createdAt" to com.google.firebase.Timestamp.now(),
@@ -776,9 +797,9 @@ class FirebaseRepository {
     suspend fun getConversationMessages(conversationId: String, limit: Int = 50): Result<List<com.example.timego.models.Message>> {
         return try {
             val snapshot = firestore.collection("messages")
-            .whereEqualTo("conversationId", conversationId)
-            .orderBy("createdAt", Query.Direction.ASCENDING)
-            .limit(limit.toLong())
+                .whereEqualTo("conversationId", conversationId)
+                .orderBy("createdAt", Query.Direction.ASCENDING)
+                .limit(limit.toLong())
                 .get()
                 .await()
 
@@ -790,7 +811,6 @@ class FirebaseRepository {
                 )
 
                 if (message != null) {
-                    // Если есть вложенные маршруты, загружаем их
                     val attachments = message.attachments
                     val routes = mutableListOf<com.example.timego.models.Route>()
 
@@ -836,7 +856,6 @@ class FirebaseRepository {
                 .add(messageData)
                 .await()
 
-            // Обновляем время последнего сообщения в диалоге
             firestore.collection("conversations")
                 .document(conversationId)
                 .update("updatedAt", com.google.firebase.Timestamp.now())
@@ -879,7 +898,6 @@ class FirebaseRepository {
                 .add(messageData)
                 .await()
 
-            // Обновляем время последнего сообщения в диалоге
             firestore.collection("conversations")
                 .document(conversationId)
                 .update("updatedAt", com.google.firebase.Timestamp.now())
@@ -889,6 +907,35 @@ class FirebaseRepository {
             Result.success(docRef.id)
         } catch (e: Exception) {
             Log.e(TAG, "Ошибка отправки сообщения с маршрутами", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteUserData(userId: String): Result<Unit> {
+        return try {
+            firestore.collection("users")
+                .document(userId)
+                .delete()
+                .await()
+
+            val favoritesSnapshot = firestore.collection("favorites")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            favoritesSnapshot.documents.forEach { it.reference.delete().await() }
+
+            val conversationsSnapshot = firestore.collection("conversations")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            conversationsSnapshot.documents.forEach { it.reference.delete().await() }
+
+            Log.d(TAG, "Данные пользователя успешно удалены: $userId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка удаления данных пользователя", e)
             Result.failure(e)
         }
     }

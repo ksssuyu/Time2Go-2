@@ -4,19 +4,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.timego.R
 import com.example.timego.models.Review
-import com.example.timego.utils.ImageLoader
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.timego.repository.FirebaseRepository
+import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.launch
 
 class ReviewsAdapter(
     private val reviews: List<Review>,
-    private val onLikeClick: ((Review, Int) -> Unit)? = null,
-    private val onImageClick: ((String) -> Unit)? = null
+    private val onLikeClick: (Review, Int) -> Unit,
+    private val onImageClick: (String) -> Unit,
+    private val currentUserId: String?,
+    private val repository: FirebaseRepository
 ) : RecyclerView.Adapter<ReviewsAdapter.ReviewViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
@@ -32,59 +36,60 @@ class ReviewsAdapter(
     override fun getItemCount(): Int = reviews.size
 
     inner class ReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val userAvatar: ImageView = itemView.findViewById(R.id.review_user_avatar)
-        private val userName: TextView = itemView.findViewById(R.id.review_user_name)
-        private val reviewDate: TextView = itemView.findViewById(R.id.review_date)
-        private val reviewRating: TextView = itemView.findViewById(R.id.review_rating)
-        private val reviewText: TextView = itemView.findViewById(R.id.review_text)
-        private val reviewLikesCount: TextView = itemView.findViewById(R.id.review_likes)
-        private val reviewLikeIcon: ImageView = itemView.findViewById(R.id.review_like_icon)
-        private val reviewImagesContainer: LinearLayout = itemView.findViewById(R.id.review_images_container)
+        private val tvUserName: TextView = itemView.findViewById(R.id.tv_user_name)
+        private val tvRating: TextView = itemView.findViewById(R.id.tv_rating)
+        private val tvReviewText: TextView = itemView.findViewById(R.id.tv_review_text)
+        private val tvLikesCount: TextView = itemView.findViewById(R.id.tv_likes_count)
+        private val ivReviewImage: ImageView = itemView.findViewById(R.id.iv_review_image)
+        private val btnLike: MaterialCardView = itemView.findViewById(R.id.btn_like)
+        private val ivLikeIcon: ImageView = itemView.findViewById(R.id.iv_like_icon)
 
         fun bind(review: Review, position: Int) {
-            if (review.userAvatarUrl.isNotEmpty()) {
-                ImageLoader.loadCircularImage(userAvatar, review.userAvatarUrl, R.drawable.ic_profile)
-            } else {
-                userAvatar.setImageResource(R.drawable.ic_profile)
-            }
+            tvUserName.text = review.userName
+            tvRating.text = "★ ${review.rating}"
+            tvReviewText.text = review.text
+            tvLikesCount.text = review.likes.toString()
 
-            userName.text = when {
-                review.userName.isNotEmpty() && review.userName != "Пользователь" -> review.userName
-                else -> "Пользователь"
-            }
-
-            reviewRating.text = String.format("%.1f", review.rating)
-            reviewText.text = review.text
-            reviewLikesCount.text = review.likes.toString()
-
-            val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale("ru"))
-            reviewDate.text = dateFormat.format(review.createdAt.toDate())
-
-            reviewImagesContainer.removeAllViews()
+            // Загружаем изображение отзыва, если есть
             if (review.images.isNotEmpty()) {
-                reviewImagesContainer.visibility = View.VISIBLE
-                review.images.take(3).forEach { imageUrl ->
-                    val imageView = ImageView(itemView.context)
-                    val size = (itemView.context.resources.displayMetrics.density * 80).toInt()
-                    val layoutParams = LinearLayout.LayoutParams(size, size)
-                    layoutParams.marginEnd = (itemView.context.resources.displayMetrics.density * 8).toInt()
-                    imageView.layoutParams = layoutParams
-                    imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                ivReviewImage.visibility = View.VISIBLE
+                Glide.with(itemView.context)
+                    .load(review.images[0])
+                    .centerCrop()
+                    .into(ivReviewImage)
 
-                    imageView.setOnClickListener {
-                        onImageClick?.invoke(imageUrl)
-                    }
-
-                    ImageLoader.loadImage(imageView, imageUrl, R.drawable.ic_home)
-                    reviewImagesContainer.addView(imageView)
+                ivReviewImage.setOnClickListener {
+                    onImageClick(review.images[0])
                 }
             } else {
-                reviewImagesContainer.visibility = View.GONE
+                ivReviewImage.visibility = View.GONE
             }
 
-            val likeContainer = itemView.findViewById<LinearLayout>(R.id.review_like_container)
-            likeContainer.setOnClickListener {
-                onLikeClick?.invoke(review, position)
+            // Проверяем, лайкнул ли пользователь этот отзыв
+            if (currentUserId != null) {
+                (itemView.context as? LifecycleOwner)?.lifecycleScope?.launch {
+                    repository.isReviewLiked(currentUserId, review.reviewId).onSuccess { isLiked ->
+                        updateLikeButton(isLiked)
+                    }
+                }
+            }
+
+            btnLike.setOnClickListener {
+                onLikeClick(review, position)
+            }
+        }
+
+        private fun updateLikeButton(isLiked: Boolean) {
+            if (isLiked) {
+                ivLikeIcon.setImageResource(R.drawable.ic_favorite_filled)
+                ivLikeIcon.setColorFilter(
+                    itemView.context.getColor(R.color.favorite_color)
+                )
+            } else {
+                ivLikeIcon.setImageResource(R.drawable.ic_favorite)
+                ivLikeIcon.setColorFilter(
+                    itemView.context.getColor(R.color.favorite_color_inactive)
+                )
             }
         }
     }

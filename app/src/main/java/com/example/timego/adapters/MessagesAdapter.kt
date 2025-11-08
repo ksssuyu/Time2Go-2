@@ -1,12 +1,12 @@
 package com.example.timego.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.timego.R
@@ -21,6 +21,7 @@ class MessagesAdapter(
     companion object {
         private const val VIEW_TYPE_USER = 1
         private const val VIEW_TYPE_BOT = 2
+        private const val TAG = "MessagesAdapter"
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -28,6 +29,7 @@ class MessagesAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        Log.d(TAG, "Создание ViewHolder для типа: $viewType")
         return if (viewType == VIEW_TYPE_USER) {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_message_user, parent, false)
@@ -41,6 +43,8 @@ class MessagesAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = messages[position]
+        Log.d(TAG, "Привязка сообщения #$position: type=${message.type}, text=${message.text}")
+
         if (holder is UserMessageViewHolder) {
             holder.bind(message)
         } else if (holder is BotMessageViewHolder) {
@@ -48,13 +52,17 @@ class MessagesAdapter(
         }
     }
 
-    override fun getItemCount(): Int = messages.size
+    override fun getItemCount(): Int {
+        Log.d(TAG, "getItemCount: ${messages.size}")
+        return messages.size
+    }
 
     class UserMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvMessageText: TextView = itemView.findViewById(R.id.tv_message_text)
 
         fun bind(message: Message) {
             tvMessageText.text = message.text
+            Log.d(TAG, "UserMessage привязан: ${message.text}")
         }
     }
 
@@ -64,8 +72,8 @@ class MessagesAdapter(
 
         fun bind(message: Message, onRouteClick: (Route) -> Unit) {
             tvMessageText.text = message.text
+            Log.d(TAG, "BotMessage привязан: ${message.text}, маршрутов: ${message.routes.size}")
 
-            // Отображаем маршруты, если они есть
             if (message.routes.isNotEmpty()) {
                 routesContainer.visibility = View.VISIBLE
                 routesContainer.removeAllViews()
@@ -81,7 +89,6 @@ class MessagesAdapter(
                     routeName.text = route.title
                     routeDescription.text = route.shortDescription
 
-                    // Загружаем изображение
                     val imageUrl = if (route.images.isNotEmpty()) {
                         route.images[0]
                     } else {

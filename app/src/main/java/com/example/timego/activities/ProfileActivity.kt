@@ -1,5 +1,7 @@
 package com.example.timego.activities
 
+import kotlinx.coroutines.tasks.await
+import androidx.appcompat.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +10,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.timego.MainActivity
@@ -149,20 +150,39 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun logout() {
+        AlertDialog.Builder(this)
+            .setTitle("Выйти из аккаунта?")
+            .setMessage("Вы уверены, что хотите выйти?")
+            .setPositiveButton("Выйти") { _, _ ->
+                performLogout()
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun performLogout() {
         repository.signOut()
 
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        prefs.edit().clear().apply()
+        Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show()
 
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, RegistrationActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
-
-        Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show()
     }
 
     private fun deleteAccount() {
+        AlertDialog.Builder(this)
+            .setTitle("Удалить аккаунт?")
+            .setMessage("Вы уверены? Это действие необратимо. Все ваши данные будут удалены.")
+            .setPositiveButton("Удалить") { _, _ ->
+                performAccountDeletion()
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun performAccountDeletion() {
         val user = repository.getCurrentUser()
         if (user == null) {
             Toast.makeText(this, "Ошибка: пользователь не найден", Toast.LENGTH_SHORT).show()
@@ -171,34 +191,36 @@ class ProfileActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                repository.getMyRoutes(user.uid, 1000).onSuccess { routes ->
-                    routes.forEach { route ->
-                        repository.deleteRoute(route.routeId)
-                    }
+                repository.deleteUserData(user.uid).onSuccess {
+                    Log.d(TAG, "Данные пользователя удалены из Firestore")
                 }
 
-                user.delete().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-                        prefs.edit().clear().apply()
+                user.delete().await()
 
-                        val intent = Intent(this@ProfileActivity, MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                        finish()
+                Log.d(TAG, "Аккаунт успешно удален")
+                Toast.makeText(this@ProfileActivity, "Аккаунт удален", Toast.LENGTH_SHORT).show()
 
-                        Toast.makeText(this@ProfileActivity, "Аккаунт удален", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(
-                            this@ProfileActivity,
-                            "Ошибка удаления аккаунта",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+                val intent = Intent(this@ProfileActivity, RegistrationActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+
             } catch (e: Exception) {
                 Log.e(TAG, "Ошибка удаления аккаунта", e)
-                Toast.makeText(applicationContext, "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+
+                if (e.message?.contains("requires-recent-login") == true) {
+                    Toast.makeText(
+                        this@ProfileActivity,
+                        "Для удаления аккаунта требуется повторный вход. Пожалуйста, выйдите и войдите снова.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        this@ProfileActivity,
+                        "Ошибка: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

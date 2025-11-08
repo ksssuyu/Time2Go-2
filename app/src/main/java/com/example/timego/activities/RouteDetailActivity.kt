@@ -39,7 +39,6 @@ class RouteDetailActivity : AppCompatActivity() {
     private lateinit var tvDescription: TextView
     private lateinit var tvCreator: TextView
     private lateinit var btnFavorite: MaterialButton
-    private lateinit var btnStartRoute: MaterialButton
     private lateinit var btnAddReview: MaterialButton
     private lateinit var btnBack: ImageView
     private lateinit var rvReviews: RecyclerView
@@ -90,7 +89,6 @@ class RouteDetailActivity : AppCompatActivity() {
         tvDescription = findViewById(R.id.tv_route_description)
         tvCreator = findViewById(R.id.tv_route_creator)
         btnFavorite = findViewById(R.id.btn_favorite)
-        btnStartRoute = findViewById(R.id.btn_start_route)
         btnAddReview = findViewById(R.id.btn_add_review)
         btnBack = findViewById(R.id.btn_back)
         rvReviews = findViewById(R.id.rv_reviews)
@@ -106,10 +104,6 @@ class RouteDetailActivity : AppCompatActivity() {
 
         btnFavorite.setOnClickListener {
             toggleFavorite()
-        }
-
-        btnStartRoute.setOnClickListener {
-            startRouteNavigation()
         }
 
         btnAddReview.setOnClickListener {
@@ -232,14 +226,31 @@ class RouteDetailActivity : AppCompatActivity() {
             return
         }
 
-        rvReviews.adapter = ReviewsAdapter(reviews,
-            onLikeClick = { review, position ->
-                handleReviewLike(review)
-            },
-            onImageClick = { imageUrl ->
-                openImageViewer(imageUrl)
+        val userId = repository.getCurrentUser()?.uid
+
+        lifecycleScope.launch {
+            val reviewsWithLikeStatus = reviews.map { review ->
+                var isLiked = false
+                if (userId != null) {
+                    repository.isReviewLiked(userId, review.reviewId).onSuccess { liked ->
+                        isLiked = liked
+                    }
+                }
+                review to isLiked
             }
-        )
+
+            rvReviews.adapter = ReviewsAdapter(
+                reviews = reviews,
+                onLikeClick = { review, position ->
+                    handleReviewLike(review)
+                },
+                onImageClick = { imageUrl ->
+                    openImageViewer(imageUrl)
+                },
+                currentUserId = userId,
+                repository = repository
+            )
+        }
     }
 
     private fun handleReviewLike(review: Review) {
@@ -254,10 +265,13 @@ class RouteDetailActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repository.toggleReviewLike(userId, review.reviewId).onSuccess { liked ->
                 Log.d(TAG, "Лайк успешно переключен: $liked")
+
                 loadReviews()
+
+                val message = if (liked) "Лайк добавлен ❤️" else "Лайк удален"
                 Toast.makeText(
                     this@RouteDetailActivity,
-                    if (liked) "Лайк добавлен" else "Лайк удален",
+                    message,
                     Toast.LENGTH_SHORT
                 ).show()
             }.onFailure { error ->
@@ -265,7 +279,7 @@ class RouteDetailActivity : AppCompatActivity() {
                 Toast.makeText(
                     this@RouteDetailActivity,
                     "Ошибка: ${error.message}",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_SHORT
                 ).show()
             }
         }
@@ -320,10 +334,6 @@ class RouteDetailActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun startRouteNavigation() {
-        Toast.makeText(this, "Навигация будет добавлена позже", Toast.LENGTH_SHORT).show()
     }
 
     private fun openEditRoute() {
