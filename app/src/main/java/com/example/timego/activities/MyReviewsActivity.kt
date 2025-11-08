@@ -8,12 +8,13 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.timego.R
-import com.example.timego.adapters.ReviewsAdapter
+import com.example.timego.adapters.MyReviewsAdapter
 import com.example.timego.models.Review
 import com.example.timego.repository.FirebaseRepository
 import kotlinx.coroutines.launch
@@ -29,6 +30,7 @@ class MyReviewsActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MyReviewsActivity"
+        private const val REQUEST_EDIT_REVIEW = 100
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,9 +99,13 @@ class MyReviewsActivity : AppCompatActivity() {
         rvReviews.visibility = View.VISIBLE
         emptyState.visibility = View.GONE
 
-        rvReviews.adapter = ReviewsAdapter(reviews,
-            onLikeClick = { review, position ->
-                handleReviewLike(review)
+        rvReviews.adapter = MyReviewsAdapter(
+            reviews = reviews,
+            onEditClick = { review ->
+                editReview(review)
+            },
+            onDeleteClick = { review ->
+                confirmDeleteReview(review)
             },
             onImageClick = { imageUrl ->
                 openImageViewer(imageUrl)
@@ -107,27 +113,36 @@ class MyReviewsActivity : AppCompatActivity() {
         )
     }
 
-    private fun handleReviewLike(review: Review) {
-        val userId = repository.getCurrentUser()?.uid
-        if (userId == null) {
-            Toast.makeText(this, "Ошибка", Toast.LENGTH_SHORT).show()
-            return
-        }
+    private fun editReview(review: Review) {
+        val intent = Intent(this, EditReviewActivity::class.java)
+        intent.putExtra("REVIEW_ID", review.reviewId)
+        intent.putExtra("REVIEW_TEXT", review.text)
+        intent.putExtra("REVIEW_RATING", review.rating)
+        startActivityForResult(intent, REQUEST_EDIT_REVIEW)
+    }
 
+    private fun confirmDeleteReview(review: Review) {
+        AlertDialog.Builder(this)
+            .setTitle("Удалить отзыв?")
+            .setMessage("Вы уверены, что хотите удалить этот отзыв?")
+            .setPositiveButton("Удалить") { _, _ ->
+                deleteReview(review)
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    private fun deleteReview(review: Review) {
         lifecycleScope.launch {
-            repository.toggleReviewLike(userId, review.reviewId).onSuccess { liked ->
+            repository.deleteReview(review.reviewId, review.routeId).onSuccess {
+                Toast.makeText(this@MyReviewsActivity, "Отзыв удален", Toast.LENGTH_SHORT).show()
                 loadMyReviews()
-                Toast.makeText(
-                    this@MyReviewsActivity,
-                    if (liked) "Лайк добавлен" else "Лайк удален",
-                    Toast.LENGTH_SHORT
-                ).show()
             }.onFailure { error ->
-                Log.e(TAG, "Ошибка при лайке отзыва: ${error.message}", error)
+                Log.e(TAG, "Ошибка удаления отзыва", error)
                 Toast.makeText(
                     this@MyReviewsActivity,
-                    "Ошибка: ${error.message}",
-                    Toast.LENGTH_LONG
+                    "Ошибка удаления: ${error.message}",
+                    Toast.LENGTH_SHORT
                 ).show()
             }
         }
@@ -139,9 +154,16 @@ class MyReviewsActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_EDIT_REVIEW && resultCode == RESULT_OK) {
+            loadMyReviews()
+            Toast.makeText(this, "Отзыв обновлен!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         loadMyReviews()
     }
-
 }

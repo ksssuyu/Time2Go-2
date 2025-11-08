@@ -24,6 +24,7 @@ class MainScreenActivity : AppCompatActivity() {
     private val repository = FirebaseRepository()
     private lateinit var auth: FirebaseAuth
     private lateinit var btnSearch: MaterialButton
+    private lateinit var greetingText: TextView
 
     companion object {
         private const val TAG = "MainScreenActivity"
@@ -241,18 +242,30 @@ class MainScreenActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun loadUserName() {
-        lifecycleScope.launch {
-            try {
-                val userId = auth.currentUser?.uid ?: return@launch
-                repository.getUserData(userId).onSuccess { user ->
-                    val greetingText = findViewById<TextView>(R.id.greeting_text)
-                    greetingText.text = "Привет, ${user.name}!"
+        val user = repository.getCurrentUser()
+        if (user != null) {
+            lifecycleScope.launch {
+                repository.getUserData(user.uid).onSuccess { userData ->
+                    val displayName = when {
+                        userData.name.isNotEmpty() && !userData.name.matches(Regex("^\\+?[0-9]+$")) -> {
+                            userData.name
+                        }
+                        userData.name.matches(Regex("^\\+?[0-9]+$")) -> {
+                            "Пользователь"
+                        }
+                        userData.email.isNotEmpty() && !userData.email.contains("@phone.user") -> {
+                            userData.email.substringBefore("@")
+                        }
+                        else -> "Пользователь"
+                    }
+
+                    greetingText.text = "Привет, $displayName!"
                 }.onFailure {
-                    Log.e(TAG, "Ошибка загрузки имени пользователя", it)
+                    greetingText.text = "Привет, Пользователь!"
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Ошибка", e)
             }
+        } else {
+            greetingText.text = "Привет!"
         }
     }
 
@@ -297,6 +310,7 @@ class MainScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_screen)
+        greetingText = findViewById(R.id.greeting_text)
 
         auth = FirebaseAuth.getInstance()
         btnSearch = findViewById(R.id.btn_search)

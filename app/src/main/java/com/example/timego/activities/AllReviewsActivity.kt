@@ -100,13 +100,18 @@ class AllReviewsActivity : AppCompatActivity() {
         rvAllReviews.visibility = android.view.View.VISIBLE
         findViewById<android.view.View>(R.id.empty_state).visibility = android.view.View.GONE
 
-        rvAllReviews.adapter = ReviewsAdapter(reviews,
+        val currentUserId = repository.getCurrentUser()?.uid
+
+        rvAllReviews.adapter = ReviewsAdapter(
+            reviews,
             onLikeClick = { review, position ->
                 handleReviewLike(review)
             },
             onImageClick = { imageUrl ->
                 openImageViewer(imageUrl)
-            }
+            },
+            currentUserId = currentUserId,
+            repository = repository
         )
     }
 

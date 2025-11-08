@@ -297,20 +297,6 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_start_route"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:backgroundTint="#FDEBE1"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="Начать маршрут"
-                    android:textColor="#909090"
-                    android:textSize="18sp"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_navigation"
-                    app:iconGravity="start"
-                    app:iconTint="#909090" />
-
-                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_favorite"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"

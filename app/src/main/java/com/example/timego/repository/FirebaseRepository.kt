@@ -507,6 +507,21 @@ class FirebaseRepository {
         }
     }
 
+    suspend fun updateReview(reviewId: String, updates: HashMap<String, Any>): Result<Unit> {
+        return try {
+            firestore.collection("reviews")
+                .document(reviewId)
+                .update(updates)
+                .await()
+
+            Log.d(TAG, "Отзыв успешно обновлен: $reviewId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка обновления отзыва", e)
+            Result.failure(e)
+        }
+    }
+
     suspend fun deleteReview(reviewId: String, routeId: String): Result<Unit> {
         return try {
             firestore.collection("reviews")
@@ -889,6 +904,35 @@ class FirebaseRepository {
             Result.success(docRef.id)
         } catch (e: Exception) {
             Log.e(TAG, "Ошибка отправки сообщения с маршрутами", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteUserData(userId: String): Result<Unit> {
+        return try {
+            firestore.collection("users")
+                .document(userId)
+                .delete()
+                .await()
+
+            val favoritesSnapshot = firestore.collection("favorites")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            favoritesSnapshot.documents.forEach { it.reference.delete().await() }
+
+            val conversationsSnapshot = firestore.collection("conversations")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            conversationsSnapshot.documents.forEach { it.reference.delete().await() }
+
+            Log.d(TAG, "Данные пользователя успешно удалены: $userId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка удаления данных пользователя", e)
             Result.failure(e)
         }
     }

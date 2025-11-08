@@ -122,6 +122,10 @@
             android:theme="@style/theme.Time2Go"
             android:windowSoftInputMode="adjustResize" />
 
-    </application>
+        <activity
+            android:name=".activities.EditReviewActivity"
+            android:exported="false"
+            android:theme="@style/theme.Time2Go" />
 
+    </application>
 </manifest>

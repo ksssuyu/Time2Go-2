@@ -154,7 +154,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="12dp"
                 android:hint="Номер телефона"
                 android:visibility="gone"
                 app:boxBackgroundColor="#FFFFFF"
@@ -221,7 +221,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="0dp"
                 android:fontFamily="sans-serif"
                 android:text="@string/forgot_password"
                 android:textAllCaps="false"
@@ -235,7 +235,7 @@
                 android:id="@+id/btn_login"
                 android:layout_width="0dp"
                 android:layout_height="59dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="115dp"
                 android:backgroundTint="#FDEBE1"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/login_button"
@@ -245,7 +245,7 @@
                 app:cornerRadius="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btn_forgot_password" />
+                app:layout_constraintTop_toBottomOf="@id/barrier_input" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_registration"
