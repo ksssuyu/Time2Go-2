@@ -63,7 +63,6 @@ class CategoryRoutesActivity : AppCompatActivity() {
         emptyState = findViewById(R.id.empty_state)
 
         tvTitle.text = categoryName
-        // Изменено на LinearLayoutManager
         rvRoutes.layoutManager = LinearLayoutManager(this)
     }
 

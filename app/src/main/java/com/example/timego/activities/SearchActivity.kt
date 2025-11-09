@@ -96,10 +96,8 @@ class SearchActivity : AppCompatActivity() {
             }
         })
 
-        // Настройка чипов категорий для множественного выбора
         setupCategoryChips()
 
-        // Настройка чипов сложности для одиночного выбора
         setupDifficultyChips()
 
         btnApplyFilters.setOnClickListener {
@@ -143,7 +141,6 @@ class SearchActivity : AppCompatActivity() {
                         selectedDifficulty = buttonView.tag as? String
                         Log.d(TAG, "Сложность выбрана: $selectedDifficulty")
 
-                        // Снимаем выбор с других чипов сложности
                         for (j in 0 until chipGroupDifficulty.childCount) {
                             val otherChip = chipGroupDifficulty.getChildAt(j) as? Chip
                             if (otherChip != null && otherChip != buttonView && otherChip.isChecked) {
@@ -151,7 +148,6 @@ class SearchActivity : AppCompatActivity() {
                             }
                         }
                     } else {
-                        // Если снимаем выбор с текущего чипа
                         if (selectedDifficulty == buttonView.tag) {
                             selectedDifficulty = null
                             Log.d(TAG, "Сложность сброшена")
@@ -175,7 +171,6 @@ class SearchActivity : AppCompatActivity() {
             try {
                 Log.d(TAG, "Начинаем загрузку всех маршрутов...")
 
-                // Загружаем ВСЕ маршруты без ограничений
                 val allRoutesResult = repository.getAllRoutes()
 
                 allRoutes = allRoutesResult.getOrNull() ?: emptyList()
@@ -183,7 +178,6 @@ class SearchActivity : AppCompatActivity() {
 
                 Log.d(TAG, "Загружено всего маршрутов: ${allRoutes.size}")
 
-                // Выводим информацию о каждом маршруте
                 allRoutes.forEachIndexed { index, route ->
                     Log.d(TAG, "Маршрут $index: ${route.title}, категория: ${route.category}, сложность: ${route.difficulty}")
                 }
@@ -204,7 +198,6 @@ class SearchActivity : AppCompatActivity() {
         Log.d(TAG, "  Выбранная сложность: $selectedDifficulty")
 
         filteredRoutes = allRoutes.filter { route ->
-            // Поиск по тексту
             val matchesSearch = if (searchQuery.isEmpty()) {
                 true
             } else {
@@ -214,7 +207,6 @@ class SearchActivity : AppCompatActivity() {
                         route.categoryName.contains(searchQuery, ignoreCase = true)
             }
 
-            // Фильтр по категориям (если выбраны)
             val matchesCategory = if (selectedCategories.isEmpty()) {
                 true
             } else {
@@ -225,7 +217,6 @@ class SearchActivity : AppCompatActivity() {
                 matches
             }
 
-            // Фильтр по сложности (если выбрана)
             val matchesDifficulty = if (selectedDifficulty == null) {
                 true
             } else {
@@ -253,7 +244,6 @@ class SearchActivity : AppCompatActivity() {
         selectedCategories.clear()
         selectedDifficulty = null
 
-        // Снимаем выбор со всех чипов категорий
         for (i in 0 until chipGroupCategories.childCount) {
             val chip = chipGroupCategories.getChildAt(i) as? Chip
             if (chip?.isChecked == true) {
@@ -261,7 +251,6 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        // Снимаем выбор со всех чипов сложности
         for (i in 0 until chipGroupDifficulty.childCount) {
             val chip = chipGroupDifficulty.getChildAt(i) as? Chip
             if (chip?.isChecked == true) {

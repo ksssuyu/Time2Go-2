@@ -31,7 +31,6 @@
                 android:textColor="#6B655F"
                 android:textSize="16sp" />
 
-            <!-- Карточки маршрутов -->
             <LinearLayout
                 android:id="@+id/routes_container"
                 android:layout_width="wrap_content"

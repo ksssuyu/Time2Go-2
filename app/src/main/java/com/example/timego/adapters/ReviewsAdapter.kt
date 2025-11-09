@@ -50,7 +50,6 @@ class ReviewsAdapter(
             tvReviewText.text = review.text
             tvLikesCount.text = review.likes.toString()
 
-            // Загружаем изображение отзыва, если есть
             if (review.images.isNotEmpty()) {
                 ivReviewImage.visibility = View.VISIBLE
                 Glide.with(itemView.context)
@@ -65,7 +64,6 @@ class ReviewsAdapter(
                 ivReviewImage.visibility = View.GONE
             }
 
-            // Проверяем, лайкнул ли пользователь этот отзыв
             if (currentUserId != null) {
                 (itemView.context as? LifecycleOwner)?.lifecycleScope?.launch {
                     repository.isReviewLiked(currentUserId, review.reviewId).onSuccess { isLiked ->

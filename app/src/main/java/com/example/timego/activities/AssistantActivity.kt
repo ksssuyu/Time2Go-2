@@ -117,7 +117,6 @@ class AssistantActivity : AppCompatActivity() {
                             val welcomeMessage = greetings.random()
                             addBotMessage(welcomeMessage)
 
-                            // Сохраняем приветственное сообщение
                             repository.sendMessage(convId, null, welcomeMessage, "bot")
                         }
 
@@ -150,16 +149,13 @@ class AssistantActivity : AppCompatActivity() {
 
         Log.d(TAG, "Отправка сообщения: $text")
 
-        // Добавляем сообщение пользователя в UI СРАЗУ
         addUserMessage(text)
         etMessage.text.clear()
 
-        // Сохраняем сообщение в Firebase и обрабатываем
         lifecycleScope.launch {
             try {
                 repository.sendMessage(convId, userId, text, "user").onSuccess {
                     Log.d(TAG, "Сообщение пользователя сохранено в Firebase")
-                    // Обрабатываем запрос и генерируем ответ
                     processUserMessage(text)
                 }.onFailure { error ->
                     Log.e(TAG, "Ошибка отправки сообщения в Firebase", error)
@@ -235,7 +231,7 @@ class AssistantActivity : AppCompatActivity() {
     private fun detectIntent(text: String): String {
         val lowerText = text.lowercase().trim()
 
-        if (lowerText.matches(Regex(".*(привет|здравствуй|добрый день|добрый вечер|доброе утро|хай|hello|hi|йо|здорово).*"))) {
+        if (lowerText.matches(Regex(".*(привет|здравствуй|добрый день|добрый вечер|доброе утро|hello|hi|).*"))) {
             return "greeting"
         }
 
@@ -243,7 +239,7 @@ class AssistantActivity : AppCompatActivity() {
             return "help"
         }
 
-        if (lowerText.matches(Regex(".*(спасибо|благодар|thanks|thx|пасиб|сенкс|круто|супер ты|молодец).*"))) {
+        if (lowerText.matches(Regex(".*(спасибо|благодар|thanks|thx|пасиб|круто|супер ты|молодец).*"))) {
             return "thanks"
         }
 

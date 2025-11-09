@@ -49,7 +49,6 @@ class FavoritesActivity : AppCompatActivity() {
         rvFavorites = findViewById(R.id.rv_favorites)
         emptyState = findViewById(R.id.empty_state)
 
-        // Изменено на LinearLayoutManager для отображения по 1 маршруту
         rvFavorites.layoutManager = LinearLayoutManager(this)
     }
 
@@ -98,7 +97,6 @@ class FavoritesActivity : AppCompatActivity() {
         rvFavorites.visibility = View.VISIBLE
         emptyState.visibility = View.GONE
 
-        // Используем новый адаптер для списка
         rvFavorites.adapter = RoutesListAdapter(routes) { route ->
             openRouteDetail(route)
         }

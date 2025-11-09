@@ -40,12 +40,11 @@ class MyReviewsAdapter(
         private val btnDelete: MaterialButton = itemView.findViewById(R.id.btn_delete_review)
 
         fun bind(review: Review) {
-            tvRouteName.text = "Маршрут: ${review.routeId}" // Можно загрузить название маршрута
+            tvRouteName.text = "Маршрут: ${review.routeId}"
             tvRating.text = "★ ${review.rating}"
             tvReviewText.text = review.text
-            tvLikesCount.text = "❤️ ${review.likes}"
+            tvLikesCount.text = "${review.likes}"
 
-            // Загружаем изображение отзыва, если есть
             if (review.images.isNotEmpty()) {
                 ivReviewImage.visibility = View.VISIBLE
                 Glide.with(itemView.context)

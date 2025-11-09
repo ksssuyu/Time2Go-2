@@ -52,7 +52,6 @@ class AllUserRoutesActivity : AppCompatActivity() {
         emptyState = findViewById(R.id.empty_state)
         fabCreateRoute = findViewById(R.id.fab_create_route)
 
-        // Изменено на LinearLayoutManager
         rvRoutes.layoutManager = LinearLayoutManager(this)
     }
 
