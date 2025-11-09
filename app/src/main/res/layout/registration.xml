@@ -94,38 +94,11 @@
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/username_input_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Имя пользователя"
-                app:boxBackgroundColor="#FFFAF1"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxStrokeColor="#E0E0E0"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/toggle_login_type">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_username"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:maxLength="30"
-                    android:textColor="#909090"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/email_input_layout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="20dp"
                 android:hint="@string/hint_email"
                 android:visibility="visible"
                 app:boxBackgroundColor="#FFFFFF"
@@ -136,7 +109,7 @@
                 app:boxStrokeColor="#E0E0E0"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/username_input_layout">
+                app:layout_constraintTop_toBottomOf="@id/toggle_login_type">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/email_input"
@@ -154,7 +127,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="20dp"
                 android:hint="Номер телефона"
                 android:visibility="gone"
                 app:boxBackgroundColor="#FFFFFF"
@@ -166,7 +139,7 @@
                 app:prefixText="+7 "
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/username_input_layout">
+                app:layout_constraintTop_toBottomOf="@id/toggle_login_type">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/phone_input"
@@ -184,7 +157,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="email_input_layout,phone_input_layout,username_input_layout" />
+                app:constraint_referenced_ids="email_input_layout,phone_input_layout" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/password_input_layout"
@@ -235,7 +208,7 @@
                 android:id="@+id/btn_login"
                 android:layout_width="0dp"
                 android:layout_height="59dp"
-                android:layout_marginTop="115dp"
+                android:layout_marginTop="32dp"
                 android:backgroundTint="#FDEBE1"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/login_button"
@@ -245,7 +218,7 @@
                 app:cornerRadius="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/barrier_input" />
+                app:layout_constraintTop_toBottomOf="@id/btn_forgot_password" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_registration"

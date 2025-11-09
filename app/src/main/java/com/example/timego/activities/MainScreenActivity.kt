@@ -246,22 +246,14 @@ class MainScreenActivity : AppCompatActivity() {
         if (user != null) {
             lifecycleScope.launch {
                 repository.getUserData(user.uid).onSuccess { userData ->
-                    val displayName = when {
-                        userData.name.isNotEmpty() && !userData.name.matches(Regex("^\\+?[0-9]+$")) -> {
-                            userData.name
-                        }
-                        userData.name.matches(Regex("^\\+?[0-9]+$")) -> {
-                            "Пользователь"
-                        }
-                        userData.email.isNotEmpty() && !userData.email.contains("@phone.user") -> {
-                            userData.email.substringBefore("@")
-                        }
-                        else -> "Пользователь"
+                    val displayName = if (userData.name.isNotEmpty() && userData.name != "Пользователь") {
+                        userData.name
+                    } else {
+                        "пользователь"
                     }
-
                     greetingText.text = "Привет, $displayName!"
                 }.onFailure {
-                    greetingText.text = "Привет, Пользователь!"
+                    greetingText.text = "Привет, пользователь!"
                 }
             }
         } else {

@@ -152,6 +152,21 @@ class FirebaseRepository {
         }
     }
 
+    suspend fun updateUserData(userId: String, updates: HashMap<String, Any>): Result<Unit> {
+        return try {
+            firestore.collection("users")
+            .document(userId)
+                .update(updates)
+                .await()
+
+            Log.d(TAG, "Данные пользователя обновлены: $userId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка обновления данных пользователя", e)
+            Result.failure(e)
+        }
+    }
+
     suspend fun getPopularRoutes(limit: Int = 10): Result<List<Route>> {
         return try {
             Log.d(TAG, "Запрос популярных маршрутов, лимит: $limit")

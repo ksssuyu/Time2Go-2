@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginEnd="32dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="24dp"
                 app:cardBackgroundColor="#FFFAF1"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp">
@@ -45,43 +45,67 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="24dp"
-                    android:gravity="center_vertical">
-
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/iv_user_avatar"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:src="@drawable/ic_profile"
-                        app:civ_border_color="#E0D5E8"
-                        app:civ_border_width="3dp" />
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="20dp"
-                        android:orientation="vertical">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                        <TextView
-                            android:id="@+id/tv_user_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-medium"
-                            android:text="Имя"
-                            android:textColor="#B8B5B2"
-                            android:textSize="20sp" />
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/iv_user_avatar"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@drawable/ic_profile"
+                            app:civ_border_color="#E0D5E8"
+                            app:civ_border_width="3dp" />
 
-                        <TextView
-                            android:id="@+id/tv_user_email"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="sans-serif"
-                            android:text="email"
-                            android:textColor="#9E9E9E"
-                            android:textSize="14sp" />
+                            android:layout_weight="1"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_user_name"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:text="Имя"
+                                    android:textColor="#B8B5B2"
+                                    android:textSize="20sp" />
+
+                                <ImageButton
+                                    android:id="@+id/btn_edit_name"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="Редактировать имя"
+                                    android:src="@drawable/ic_edit"
+                                    android:padding="4dp"
+                                    app:tint="#C5AAD5" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tv_user_email"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:fontFamily="sans-serif"
+                                android:text="email"
+                                android:textColor="#9E9E9E"
+                                android:textSize="14sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

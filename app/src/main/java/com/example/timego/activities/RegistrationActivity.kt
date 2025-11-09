@@ -20,12 +20,10 @@ class RegistrationActivity : AppCompatActivity() {
     private lateinit var emailInputLayout: TextInputLayout
     private lateinit var phoneInputLayout: TextInputLayout
     private lateinit var passwordInputLayout: TextInputLayout
-    private lateinit var usernameInputLayout: TextInputLayout
 
     private lateinit var emailInput: TextInputEditText
     private lateinit var phoneInput: TextInputEditText
     private lateinit var passwordInput: TextInputEditText
-    private lateinit var usernameInput: TextInputEditText
 
     private lateinit var btnLogin: MaterialButton
     private lateinit var btnRegistration: MaterialButton
@@ -47,12 +45,10 @@ class RegistrationActivity : AppCompatActivity() {
         emailInputLayout = findViewById(R.id.email_input_layout)
         phoneInputLayout = findViewById(R.id.phone_input_layout)
         passwordInputLayout = findViewById(R.id.password_input_layout)
-        usernameInputLayout = findViewById(R.id.username_input_layout)
 
         emailInput = findViewById(R.id.email_input)
         phoneInput = findViewById(R.id.phone_input)
         passwordInput = findViewById(R.id.password_input)
-        usernameInput = findViewById(R.id.et_username)
 
         btnLogin = findViewById(R.id.btn_login)
         btnRegistration = findViewById(R.id.btn_registration)
@@ -61,7 +57,6 @@ class RegistrationActivity : AppCompatActivity() {
         emailInput.setText("")
         phoneInput.setText("")
         passwordInput.setText("")
-        usernameInput.setText("")
     }
 
     private fun setupListeners() {
@@ -88,7 +83,6 @@ class RegistrationActivity : AppCompatActivity() {
         emailInputLayout.error = null
         phoneInputLayout.error = null
         passwordInputLayout.error = null
-        usernameInputLayout.error = null
     }
 
     private fun switchToPhoneMode() {
@@ -100,7 +94,6 @@ class RegistrationActivity : AppCompatActivity() {
         emailInputLayout.error = null
         phoneInputLayout.error = null
         passwordInputLayout.error = null
-        usernameInputLayout.error = null
     }
 
     private fun handleLogin() {
@@ -141,16 +134,16 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     private fun handleEmailRegistration() {
-        val username = usernameInput.text.toString().trim()
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        if (!validateUsername(username) || !validateEmailInput(email, password, isLogin = false)) return
+        if (!validateEmailInput(email, password, isLogin = false)) return
 
         btnRegistration.isEnabled = false
 
         lifecycleScope.launch {
-            val result = repository.signUp(email, password, username)
+            // Регистрируем с именем "Пользователь" по умолчанию
+            val result = repository.signUp(email, password, "Пользователь")
 
             btnRegistration.isEnabled = true
 
@@ -185,17 +178,17 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     private fun handlePhoneRegistration() {
-        val username = usernameInput.text.toString().trim()
         val phone = phoneInput.text.toString().trim()
         val password = passwordInput.text.toString().trim()
 
-        if (!validateUsername(username) || !validatePhoneInput(phone, password, isLogin = false)) return
+        if (!validatePhoneInput(phone, password, isLogin = false)) return
 
         btnRegistration.isEnabled = false
         val formattedPhone = "+7$phone"
 
         lifecycleScope.launch {
-            val result = repository.signUpWithPhone(formattedPhone, password, username)
+            // Регистрируем с именем "Пользователь" по умолчанию
+            val result = repository.signUpWithPhone(formattedPhone, password, "Пользователь")
 
             btnRegistration.isEnabled = true
 
@@ -209,25 +202,6 @@ class RegistrationActivity : AppCompatActivity() {
 
     private fun handleForgotPassword() {
         startActivity(Intent(this, ForgotPasswordActivity::class.java))
-    }
-
-    private fun validateUsername(username: String): Boolean {
-        usernameInputLayout.error = null
-        return when {
-            username.isEmpty() -> {
-                usernameInputLayout.error = "Введите имя пользователя"
-                false
-            }
-            username.length < 3 -> {
-                usernameInputLayout.error = "Минимум 3 символа"
-                false
-            }
-            username.length > 30 -> {
-                usernameInputLayout.error = "Максимум 30 символов"
-                false
-            }
-            else -> true
-        }
     }
 
     private fun validateEmailInput(email: String, password: String, isLogin: Boolean): Boolean {
