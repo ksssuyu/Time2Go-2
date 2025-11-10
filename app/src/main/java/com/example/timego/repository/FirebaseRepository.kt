@@ -70,26 +70,22 @@ class FirebaseRepository {
         }
     }
 
-    suspend fun signUpWithPhone(phone: String, password: String, name: String): Result<FirebaseUser> {
+    suspend fun signUpWithPhone(phone: String, password: String, name: String): Result<Unit> {
         return try {
-            val phoneEmail = "${phone.replace("+", "")}@phone.user"
-            val result = auth.createUserWithEmailAndPassword(phoneEmail, password).await()
-            val user = result.user ?: throw Exception("Phone registration failed")
+            val authResult = auth.createUserWithEmailAndPassword("$phone@phoneuser.fake", password).await()
+            val user = authResult.user ?: return Result.failure(Exception("User is null"))
 
-            val userData = User(
-                userId = user.uid,
-                name = name,
-                email = phoneEmail
+            val userData = hashMapOf(
+                "uid" to user.uid,
+                "phone" to phone,
+                "email" to "",
+                "name" to name,
+                "avatarUrl" to ""
             )
-            firestore.collection("users")
-                .document(user.uid)
-                .set(userData)
-                .await()
 
-            Log.d(TAG, "Пользователь зарегистрирован по телефону: $phone с ником: $name")
-            Result.success(user)
+            firestore.collection("users").document(user.uid).set(userData).await()
+            Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Ошибка регистрации по телефону", e)
             Result.failure(e)
         }
     }

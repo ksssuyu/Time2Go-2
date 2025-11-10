@@ -16,7 +16,6 @@ import com.example.timego.R
 import com.example.timego.repository.FirebaseRepository
 import com.example.timego.utils.ImageLoader
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 import android.widget.ImageButton
 
@@ -70,25 +69,15 @@ class ProfileActivity : AppCompatActivity() {
             showEditNameDialog()
         }
 
-        tabMyRoutes.setOnClickListener {
-            openMyRoutes()
+        tvUserEmail.setOnClickListener {
+            showEditEmailDialog()
         }
 
-        tabReviews.setOnClickListener {
-            openMyReviews()
-        }
-
-        tabFavorites.setOnClickListener {
-            openFavorites()
-        }
-
-        btnLogout.setOnClickListener {
-            showLogoutDialog()
-        }
-
-        btnDeleteAccount.setOnClickListener {
-            showDeleteAccountDialog()
-        }
+        tabMyRoutes.setOnClickListener { openMyRoutes() }
+        tabReviews.setOnClickListener { openMyReviews() }
+        tabFavorites.setOnClickListener { openFavorites() }
+        btnLogout.setOnClickListener { showLogoutDialog() }
+        btnDeleteAccount.setOnClickListener { showDeleteAccountDialog() }
     }
 
     private fun loadUserInfo() {
@@ -108,7 +97,8 @@ class ProfileActivity : AppCompatActivity() {
                     }
 
                     tvUserName.text = displayName
-                    tvUserEmail.text = user.email ?: "Email не указан"
+                    tvUserEmail.text =
+                        if (userData.email.isNotEmpty()) userData.email else "Email не указан"
 
                     if (userData.avatarUrl.isNotEmpty()) {
                         ImageLoader.loadCircularImage(ivAvatar, userData.avatarUrl, R.drawable.ic_profile)
@@ -150,19 +140,14 @@ class ProfileActivity : AppCompatActivity() {
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Отмена") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("Отмена") { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
     private fun updateUserName(userId: String, newName: String) {
         lifecycleScope.launch {
             try {
-                val updates = hashMapOf<String, Any>(
-                    "name" to newName
-                )
-
+                val updates = hashMapOf<String, Any>("name" to newName)
                 repository.updateUserData(userId, updates).onSuccess {
                     tvUserName.text = newName
                 }.onFailure { error ->
@@ -180,35 +165,81 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    private fun showEditEmailDialog() {
+        val user = repository.getCurrentUser() ?: return
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_email, null)
+        val etEmail = dialogView.findViewById<EditText>(R.id.et_email)
+
+        lifecycleScope.launch {
+            repository.getUserData(user.uid).onSuccess { userData ->
+                etEmail.setText(userData.email)
+            }
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Изменить email")
+            .setView(dialogView)
+            .setPositiveButton("Сохранить") { dialog, _ ->
+                val newEmail = etEmail.text.toString().trim()
+                if (newEmail.isNotEmpty() &&
+                    android.util.Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()
+                ) {
+                    updateUserEmail(user.uid, newEmail)
+                } else {
+                    Toast.makeText(this, "Введите корректный email", Toast.LENGTH_SHORT).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Отмена") { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    private fun updateUserEmail(userId: String, newEmail: String) {
+        lifecycleScope.launch {
+            try {
+                val updates = hashMapOf<String, Any>("email" to newEmail)
+                repository.updateUserData(userId, updates).onSuccess {
+                    tvUserEmail.text = newEmail
+                    Toast.makeText(this@ProfileActivity, "Email обновлён", Toast.LENGTH_SHORT).show()
+                }.onFailure { error ->
+                    Log.e(TAG, "Ошибка обновления email", error)
+                    Toast.makeText(
+                        this@ProfileActivity,
+                        "Ошибка: ${error.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Исключение при обновлении email", e)
+                Toast.makeText(this@ProfileActivity, "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun openMyRoutes() {
-        val intent = Intent(this, MyRoutesActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, MyRoutesActivity::class.java))
     }
 
     private fun openMyReviews() {
-        val intent = Intent(this, MyReviewsActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, MyReviewsActivity::class.java))
     }
 
     private fun openFavorites() {
-        val intent = Intent(this, FavoritesActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, FavoritesActivity::class.java))
     }
 
     private fun showLogoutDialog() {
         AlertDialog.Builder(this)
             .setTitle("Выход")
             .setMessage("Вы уверены, что хотите выйти из аккаунта?")
-            .setPositiveButton("Выйти") { _, _ ->
-                performLogout()
-            }
+            .setPositiveButton("Выйти") { _, _ -> performLogout() }
             .setNegativeButton("Отмена", null)
             .show()
     }
 
     private fun performLogout() {
         repository.signOut()
-
         val intent = Intent(this, RegistrationActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
@@ -219,9 +250,7 @@ class ProfileActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Удалить аккаунт?")
             .setMessage("Это действие нельзя отменить. Все ваши данные будут удалены навсегда.")
-            .setPositiveButton("Удалить") { _, _ ->
-                performAccountDeletion()
-            }
+            .setPositiveButton("Удалить") { _, _ -> performAccountDeletion() }
             .setNegativeButton("Отмена", null)
             .show()
     }
@@ -238,53 +267,34 @@ class ProfileActivity : AppCompatActivity() {
                 repository.deleteUserData(user.uid).onSuccess {
                     Log.d(TAG, "Данные пользователя удалены")
                 }
-
                 user.delete().await()
-
-                Log.d(TAG, "Аккаунт успешно удален")
-
                 val intent = Intent(this@ProfileActivity, RegistrationActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
                 finish()
-
             } catch (e: Exception) {
                 Log.e(TAG, "Ошибка удаления аккаунта", e)
-
-                if (e.message?.contains("requires-recent-login") == true) {
-                    Toast.makeText(
-                        this@ProfileActivity,
-                        "Для удаления аккаунта требуется повторный вход. Пожалуйста, выйдите и войдите снова.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    Toast.makeText(
-                        this@ProfileActivity,
-                        "Ошибка: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                Toast.makeText(
+                    this@ProfileActivity,
+                    "Ошибка: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
     private fun setupBottomNavigation() {
         bottomNavigation.selectedItemId = R.id.nav_profile
-
         bottomNavigation.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> {
-                    val intent = Intent(this, MainScreenActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, MainScreenActivity::class.java))
                     finish()
                     true
                 }
-                R.id.nav_profile -> {
-                    true
-                }
+                R.id.nav_profile -> true
                 R.id.nav_messages -> {
-                    val intent = Intent(this, AssistantActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, AssistantActivity::class.java))
                     true
                 }
                 R.id.nav_favorites -> {

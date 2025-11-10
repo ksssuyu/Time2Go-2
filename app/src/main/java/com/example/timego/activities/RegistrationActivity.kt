@@ -142,7 +142,6 @@ class RegistrationActivity : AppCompatActivity() {
         btnRegistration.isEnabled = false
 
         lifecycleScope.launch {
-            // Регистрируем с именем "Пользователь" по умолчанию
             val result = repository.signUp(email, password, "Пользователь")
 
             btnRegistration.isEnabled = true
@@ -187,7 +186,6 @@ class RegistrationActivity : AppCompatActivity() {
         val formattedPhone = "+7$phone"
 
         lifecycleScope.launch {
-            // Регистрируем с именем "Пользователь" по умолчанию
             val result = repository.signUpWithPhone(formattedPhone, password, "Пользователь")
 
             btnRegistration.isEnabled = true
