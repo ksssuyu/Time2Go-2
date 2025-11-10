@@ -57,22 +57,12 @@ class FirebaseRepository {
         }
     }
 
-    suspend fun signInWithPhone(phone: String, password: String): Result<FirebaseUser> {
-        return try {
-            val phoneEmail = "${phone.replace("+", "")}@phone.user"
-            val result = auth.signInWithEmailAndPassword(phoneEmail, password).await()
-            val user = result.user ?: throw Exception("Phone sign in failed")
-            Log.d(TAG, "Пользователь вошел по телефону: $phone")
-            Result.success(user)
-        } catch (e: Exception) {
-            Log.e(TAG, "Ошибка входа по телефону", e)
-            Result.failure(e)
-        }
-    }
-
     suspend fun signUpWithPhone(phone: String, password: String, name: String): Result<Unit> {
         return try {
-            val authResult = auth.createUserWithEmailAndPassword("$phone@phoneuser.fake", password).await()
+            val normalizedPhone = phone.replace("+", "")
+            val fakeEmail = "$normalizedPhone@phoneuser.fake"
+
+            val authResult = auth.createUserWithEmailAndPassword(fakeEmail, password).await()
             val user = authResult.user ?: return Result.failure(Exception("User is null"))
 
             val userData = hashMapOf(
@@ -84,8 +74,25 @@ class FirebaseRepository {
             )
 
             firestore.collection("users").document(user.uid).set(userData).await()
+            Log.d(TAG, "Пользователь зарегистрирован по телефону: $phone")
             Result.success(Unit)
         } catch (e: Exception) {
+            Log.e(TAG, "Ошибка регистрации по телефону", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun signInWithPhone(phone: String, password: String): Result<FirebaseUser> {
+        return try {
+            val normalizedPhone = phone.replace("+", "")
+            val fakeEmail = "$normalizedPhone@phoneuser.fake"
+
+            val result = auth.signInWithEmailAndPassword(fakeEmail, password).await()
+            val user = result.user ?: throw Exception("Phone sign in failed")
+            Log.d(TAG, "Пользователь вошел по телефону: $phone")
+            Result.success(user)
+        } catch (e: Exception) {
+            Log.e(TAG, "Ошибка входа по телефону", e)
             Result.failure(e)
         }
     }
