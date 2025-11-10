@@ -536,7 +536,6 @@ class FirebaseRepository {
 
     suspend fun deleteReview(reviewId: String, routeId: String): Result<Unit> {
         return try {
-            // Удаляем все лайки этого отзыва
             val likesSnapshot = firestore.collection("review_likes")
                 .whereEqualTo("reviewId", reviewId)
                 .get()
@@ -544,7 +543,6 @@ class FirebaseRepository {
 
             likesSnapshot.documents.forEach { it.reference.delete().await() }
 
-            // Удаляем сам отзыв
             firestore.collection("reviews")
                 .document(reviewId)
                 .delete()
@@ -576,7 +574,7 @@ class FirebaseRepository {
 
     suspend fun toggleReviewLike(userId: String, reviewId: String): Result<Boolean> {
         return try {
-            Log.d(TAG, "Переключение лайка отзыва: userId=$userId, reviewId=$reviewId")
+            Log.d(TAG, "toggleReviewLike: userId=$userId, reviewId=$reviewId")
 
             val likeSnapshot = firestore.collection("review_likes")
                 .whereEqualTo("userId", userId)
@@ -586,7 +584,8 @@ class FirebaseRepository {
                 .await()
 
             if (likeSnapshot.isEmpty) {
-                // Добавляем лайк
+                Log.d(TAG, "Добавляем лайк к отзыву $reviewId")
+
                 val likeData = hashMapOf(
                     "userId" to userId,
                     "reviewId" to reviewId,
@@ -602,18 +601,21 @@ class FirebaseRepository {
                     .update("likes", FieldValue.increment(1))
                     .await()
 
-                Log.d(TAG, "Лайк добавлен к отзыву: $reviewId")
+                Log.d(TAG, "Лайк успешно добавлен к отзыву: $reviewId")
                 Result.success(true)
             } else {
-                // Удаляем лайк
-                likeSnapshot.documents.forEach { it.reference.delete().await() }
+                Log.d(TAG, "Удаляем лайк с отзыва $reviewId")
+
+                likeSnapshot.documents.forEach { doc ->
+                    doc.reference.delete().await()
+                }
 
                 firestore.collection("reviews")
                     .document(reviewId)
                     .update("likes", FieldValue.increment(-1))
                     .await()
 
-                Log.d(TAG, "Лайк удален с отзыва: $reviewId")
+                Log.d(TAG, "Лайк успешно удален с отзыва: $reviewId")
                 Result.success(false)
             }
         } catch (e: Exception) {

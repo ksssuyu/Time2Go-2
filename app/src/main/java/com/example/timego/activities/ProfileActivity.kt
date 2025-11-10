@@ -165,7 +165,6 @@ class ProfileActivity : AppCompatActivity() {
 
                 repository.updateUserData(userId, updates).onSuccess {
                     tvUserName.text = newName
-                    Toast.makeText(this@ProfileActivity, "Имя обновлено!", Toast.LENGTH_SHORT).show()
                 }.onFailure { error ->
                     Log.e(TAG, "Ошибка обновления имени", error)
                     Toast.makeText(
@@ -210,8 +209,6 @@ class ProfileActivity : AppCompatActivity() {
     private fun performLogout() {
         repository.signOut()
 
-        Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show()
-
         val intent = Intent(this, RegistrationActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
@@ -239,13 +236,12 @@ class ProfileActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 repository.deleteUserData(user.uid).onSuccess {
-                    Log.d(TAG, "Данные пользователя удалены из Firestore")
+                    Log.d(TAG, "Данные пользователя удалены")
                 }
 
                 user.delete().await()
 
                 Log.d(TAG, "Аккаунт успешно удален")
-                Toast.makeText(this@ProfileActivity, "Аккаунт удален", Toast.LENGTH_SHORT).show()
 
                 val intent = Intent(this@ProfileActivity, RegistrationActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

@@ -268,12 +268,6 @@ class RouteDetailActivity : AppCompatActivity() {
 
                 loadReviews()
 
-                val message = if (liked) "Лайк добавлен ❤️" else "Лайк удален"
-                Toast.makeText(
-                    this@RouteDetailActivity,
-                    message,
-                    Toast.LENGTH_SHORT
-                ).show()
             }.onFailure { error ->
                 Log.e(TAG, "Ошибка при лайке отзыва: ${error.message}", error)
                 Toast.makeText(
